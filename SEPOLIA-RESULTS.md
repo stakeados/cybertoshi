@@ -1,7 +1,10 @@
-# CyberToshi — Base Sepolia validation in progress
+# CyberToshi — Base Sepolia test run completed
 
 Network: Base Sepolia, chain ID **84532**. No mainnet deployment.
 The current collection redeems ETH **only by burning the NFT**, together with BCAT.
+The live suite completed successfully and the independent read-only verifier passed
+at **2026-09-12 22:09 UTC** (13 September, 00:09 in Madrid), with no pending checks.
+See the [machine-readable verification report](reports/sepolia-verification.json).
 
 ## Verified deployment
 
@@ -42,14 +45,30 @@ After receiving another 0.01 test ETH, the runner resumed without repeating mint
 | Collected fees | [Transaction](https://sepolia.basescan.org/tx/0xe82c8acf5ef557647580231e9ed65c8ba5768a64b610924ce7ec7bd755537e98); 100 BCAT burned, 0.0002 ETH collected, LP balance unchanged |
 | No double fee credit | [Second collection](https://sepolia.basescan.org/tx/0x4461b9aeb7c8671d1fdb11ffc81610951fce3948a89f13021f95c84eb9117f9f) succeeded without increasing either fee counter |
 
-## Outstanding
+## Real observation waits and completed buyback
 
-The runner is waiting for real oracle observation intervals. The first checkpoint
-is [confirmed](https://sepolia.basescan.org/tx/0xc1307ca218d96aed1c068bd30b4026a762e7cf081b1b904dda49240d1a50eb0f),
-bringing the simulator to 2 of 4 required observations. The next two require more
-than 30 real minutes each. The Sepolia buyback and subsequent cooldown rejection
-are **not yet passed**. A separate local contract suite has passed 20 tests,
-including the fork integration below; that does not replace these live checks.
+| Checkpoint | Chain timestamp (Unix seconds) | Evidence |
+| --- | --- | --- |
+| 1, observation count 2 | 1789247346 | [Transaction](https://sepolia.basescan.org/tx/0xc1307ca218d96aed1c068bd30b4026a762e7cf081b1b904dda49240d1a50eb0f) |
+| 2, observation count 3 | 1789249154 | [Transaction](https://sepolia.basescan.org/tx/0xca77beb27aac0dbee3ea9ae296d68a226dcb2d6abe45b1625442f4d9579933bd) |
+| 3, observation count 4 | 1789250960 | [Transaction](https://sepolia.basescan.org/tx/0x0cfc42e8ebb7385f754ce4fe599648d77d1ff56093e4c41886bf22fbf8c3e249) |
+
+The initial simulator observation already existed before this sequence. Subsequent
+checkpoint gaps were **1,808 and 1,806 real seconds**, both greater than 30 minutes.
+No Sepolia chain clock manipulation was used.
+
+[The buyback](https://sepolia.basescan.org/tx/0x38db7a7297ebc2accfff26793497fc2d174768ebe3c61e3b1a5199d0e31a6e23)
+succeeded at block **46,741,339**, spending **0.0002 ETH** and burning **10,000 BCAT**.
+Total vault burns reached **10,100 BCAT**, including the 100 BCAT from simulated fees.
+The vault retained its LP balance and held zero BCAT afterward.
+
+An immediate historical retry returned `NotReady`. That live check has both an active
+cooldown and an empty ETH balance, so it does not isolate the cooldown. The local
+`testBuybackOracleCooldownAndSlippage` now explicitly replenishes ETH and checks rejection
+at 1,799 seconds and success at exactly 1,800 seconds with a fresh oracle.
+All **20 contract tests passed**, with zero failures or skips, including 256 solvency
+fuzz cases and the Aerodrome fork integration. User NFTs #1 and #2 remain untouched;
+the test wallet burned only its own #3 and still owns #4.
 
 ## Scope of the DEX tests
 
@@ -58,8 +77,10 @@ its price quote and LP accounting are simplified. A successful test does not pro
 real market liquidity, demand, or price behavior.
 
 `test/AerodromeFork.t.sol` separately tests the actual Aerodrome contracts on a local
-fork of Base. The latest complete contract test run used Base block **51,206,783**.
+fork of Base. The latest complete contract test run used Base block **51,230,708**.
 No real Base mainnet funds were spent in that fork test.
+The fork advances its local clock; the Sepolia run above respected real time.
+These completed tests are not an independent security audit or a mainnet release approval.
 
 The test wallet key is stored locally with Windows DPAPI encryption, outside this
 repository. It is not included in reports or Git. Transaction progress is journaled

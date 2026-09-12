@@ -228,8 +228,19 @@ contract ProtocolTest {
         vault.executeBuyback();
         require(dex.lastMinimum() > 0 && token.totalSupply() < supply);
         require(vault.totalBcatBurned() == 10000 ether);
+        // Keep funds and a fresh oracle available so only the cooldown blocks execution.
+        (bool funded,) = address(vault).call{value: 0.0002 ether}("");
+        require(funded);
+        uint256 firstBuybackAt = vault.lastBuyback();
         vm.expectRevert();
         vault.executeBuyback();
+        vm.warp(firstBuybackAt + 1799);
+        vm.expectRevert();
+        vault.executeBuyback();
+        require(vault.lastBuyback() == firstBuybackAt && vault.totalBcatBurned() == 10000 ether);
+        vm.warp(firstBuybackAt + 1800);
+        vault.executeBuyback();
+        require(vault.lastBuyback() == firstBuybackAt + 1800 && vault.totalBcatBurned() == 20000 ether);
     }
 
     function testPoolFeesPermissionlessBurnAndNoDoubleClaim() public {

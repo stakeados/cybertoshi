@@ -1,7 +1,7 @@
 {
   "chainId": 84532,
   "collection": "0x51bc317ba8c99282816199e33391a6e786807871",
-  "verifiedAt": "2026-09-12T21:13:31.164Z",
+  "verifiedAt": "2026-09-12T22:09:28.607Z",
   "checks": {
     "deploymentMatchesBurnOnlyCode": "0xd478e0437091888522ad2c63b27121fdb17c880203b7da9747327b7090446dab",
     "mintIntervalSeconds": "182",
@@ -46,15 +46,30 @@
         "label": "checkpoint-1",
         "timestamp": 1789247346,
         "hash": "0xc1307ca218d96aed1c068bd30b4026a762e7cf081b1b904dda49240d1a50eb0f"
+      },
+      {
+        "label": "checkpoint-2",
+        "timestamp": 1789249154,
+        "hash": "0xca77beb27aac0dbee3ea9ae296d68a226dcb2d6abe45b1625442f4d9579933bd"
+      },
+      {
+        "label": "checkpoint-3",
+        "timestamp": 1789250960,
+        "hash": "0x0cfc42e8ebb7385f754ce4fe599648d77d1ff56093e4c41886bf22fbf8c3e249"
       }
-    ]
+    ],
+    "immediateBuybackRetryRejected": {
+      "error": "NotReady",
+      "block": "46741339",
+      "method": "historical eth_call"
+    },
+    "immediateRetryScope": "Retry rejects with cooldown active; exhausted vault funds may also independently prevent retry. Isolated cooldown boundaries are covered by local contract tests.",
+    "simulatedBuyback": {
+      "ethWei": "200000000000000",
+      "burnedBcatUnits": "10000000000000000000000"
+    }
   },
-  "pending": [
-    "buyback and cooldown",
-    "checkpoint-2",
-    "checkpoint-3",
-    "buyback"
-  ],
+  "pending": [],
   "transactions": {
     "fundPool": {
       "hash": "0xd13ac3a2ef5472c210e1bc12d3f0e55d38b292b9431bfd715bc6e1fd41adf057",
@@ -87,7 +102,19 @@
     "checkpoint-1": {
       "hash": "0xc1307ca218d96aed1c068bd30b4026a762e7cf081b1b904dda49240d1a50eb0f",
       "block": "46739529"
+    },
+    "checkpoint-2": {
+      "hash": "0xca77beb27aac0dbee3ea9ae296d68a226dcb2d6abe45b1625442f4d9579933bd",
+      "block": "46740433"
+    },
+    "checkpoint-3": {
+      "hash": "0x0cfc42e8ebb7385f754ce4fe599648d77d1ff56093e4c41886bf22fbf8c3e249",
+      "block": "46741336"
+    },
+    "buyback": {
+      "hash": "0x38db7a7297ebc2accfff26793497fc2d174768ebe3c61e3b1a5199d0e31a6e23",
+      "block": "46741339"
     }
   },
-  "status": "incomplete"
+  "status": "verified"
 }
