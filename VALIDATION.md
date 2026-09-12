@@ -1,5 +1,32 @@
 # Verification record — 12 September 2026
 
+## Scheduled opening — 13 September release candidate
+
+The constructor now takes an immutable `mintStartsAt`. `mine` rejects before that chain
+timestamp; there is no owner or function to change it. Difficulty timing begins at
+opening, and `effectiveTarget` remains readable before opening without underflow.
+Mainnet is scheduled for **2026-09-13 01:00 UTC / 03:00 Europe/Madrid**, recorded in
+`launch-config.json`. It has not been deployed by this preparation step.
+
+**22 tests passed, zero failed or skipped**, including the real Aerodrome fork at
+Base block **51,231,566**, 256 solvency fuzz cases, pre-opening rejection, acceptance
+at the exact opening timestamp, the following 59/60-second mint boundary, and rejection
+of a constructor time in the past. Production build and ABI/hash checks passed.
+NFT runtime is 8,760 bytes; creation bytecode is 19,247 bytes.
+
+The scheduled version also passed a new live Base Sepolia test, using only the agent
+wallet: pre-opening `eth_call` returned `MintNotOpen`, then a real PoW mint succeeded
+after the opening timestamp, with no clock manipulation. See
+[scheduled-opening-sepolia.json](reports/scheduled-opening-sepolia.json).
+This new test covers the added gate. The prior full Sepolia pool/burn/fee/buyback run
+below used the preceding four-argument constructor; it was not repeated on the new
+collection. The full local protocol and real Aerodrome fork suite was rerun on the new code.
+Historical Sepolia scripts and bytecode comparisons belong to commit `145c809`.
+
+The mainnet wallet screen was loaded in a browser and checked for the expected account,
+Base 8453, two deployment steps and the fixed opening time. Real mainnet signatures
+and post-deployment verification remain separate steps. The independent review remains pending.
+
 ## ETH redemption only on NFT burn — current version
 
 20 tests passed, zero failed or skipped, including Aerodrome on Base fork 51,230,708 and 256 solvency fuzz cases. The latest run strengthens the funded buyback cooldown check: rejection at 1,799 seconds and success at exactly 1,800 seconds. Production build previously passed; production contracts and frontend are unchanged by this test update. NFT runtime: 8,622 bytes.

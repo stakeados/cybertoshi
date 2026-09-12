@@ -29,6 +29,7 @@ let cfg,
   monitor = null,
   checking = false,
   launched = false,
+  mintOpen = false,
   pageSize = 12;
 const say = (text, error = false) => {
   $("status").textContent = text;
@@ -50,9 +51,9 @@ const read = (kind, fn, args = [], extra = {}) =>
   });
 function buttons() {
   const allowed = ready && !!account && !busy;
-  $("mine").disabled = !allowed || starting || workers.length > 0 || !!solution;
+  $("mine").disabled = !allowed || !mintOpen || starting || workers.length > 0 || !!solution;
   $("connect").disabled = busy;
-  $("submit").disabled = !allowed || !solution;
+  $("submit").disabled = !allowed || !mintOpen || !solution;
   $("stop").disabled = !starting && workers.length === 0 && !solution;
   $("stop").textContent = solution ? 'Discard proof' : 'Stop';
   $("engine").disabled = starting || workers.length > 0;
@@ -74,8 +75,16 @@ function stop(clear = true) {
   $("rate").textContent = "0 H/s";
   buttons();
 }
+async function refreshOpening() {
+  if (!ready) return;
+  const [opensAt, chainBlock] = await Promise.all([read('nft', 'mintStartsAt'), client.getBlock()]);
+  mintOpen = chainBlock.timestamp >= opensAt;
+  $('opening').textContent = mintOpen ? 'Minting is open.' : `Minting opens ${new Date(Number(opensAt) * 1000).toUTCString()} · ${opensAt - chainBlock.timestamp}s remaining by chain time.`;
+  buttons();
+}
 async function refresh() {
   if (!ready) return;
+  await refreshOpening();
   const [minted, alive, eth, boot, burned, price] = await Promise.all([
     read("nft", "totalMinted"),
     read("nft", "totalSupply"),
@@ -206,7 +215,8 @@ async function send(kind, fn, args = [], value) {
       true;
   try {
     if (kind === 'nft' && fn === 'mine') {
-      const [last, minted, block] = await Promise.all([read('nft','lastMintAt'), read('nft','totalMinted'), client.getBlock()]);
+      const [last, minted, block, opensAt] = await Promise.all([read('nft','lastMintAt'), read('nft','totalMinted'), client.getBlock(), read('nft','mintStartsAt')]);
+      if (block.timestamp < opensAt) throw Error('Minting has not opened yet. No transaction sent.');
       if (minted > 0n && block.timestamp < last + 60n)
         throw Error(`Global mint cooldown: wait approximately ${last + 60n - block.timestamp} seconds. No transaction sent. Mine a fresh proof if the challenge changes.`);
     }
@@ -314,6 +324,8 @@ async function start() {
   if ((await wallet.getChainId()) !== chain.id)
     throw Error("Wrong wallet network.");
   const block = await client.getBlock();
+  if (block.timestamp < await read('nft', 'mintStartsAt', [], {blockNumber: block.number}))
+    throw Error('Minting has not opened yet.');
   const anchor = await client.getBlock({ blockNumber: block.number - 1n });
   const [previous, target, minted, price] = await Promise.all([
     read("nft", "prevWork", [], { blockNumber: block.number }),
@@ -522,4 +534,5 @@ async function init() {
   await refresh();
 }
 init().catch(fail);
+setInterval(() => { if (ready && !mintOpen) refreshOpening().catch(fail); }, 10000);
 

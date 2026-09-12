@@ -132,11 +132,18 @@ if (selected === "base") {
   factory = router;
 }
 const renderer = await deploy("CyberToshiRenderer");
+if (!state.mintStartsAt) {
+  state.mintStartsAt = selected === 'base'
+    ? JSON.parse(readFileSync('launch-config.json')).mintStartsAt
+    : Number((await client.getBlock()).timestamp) + 300;
+  writeFileSync(file, JSON.stringify(state, null, 2));
+}
 const collection = await deploy("CyberToshiNFT", [
   renderer,
   router,
   weth,
   factory,
+  BigInt(state.mintStartsAt),
 ]);
 const nft = artifact("CyberToshiNFT");
 const read = (fn) =>

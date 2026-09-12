@@ -13,13 +13,14 @@ interface Vm {
     function warp(uint256) external;
     function setBlockhash(uint256, bytes32) external;
     function expectRevert() external;
+    function expectRevert(bytes calldata) external;
     function chainId(uint256) external;
     function createSelectFork(string calldata) external returns (uint256);
     function envOr(string calldata, string calldata) external returns (string memory);
 }
 
 contract Harness is CyberToshiNFT {
-    constructor(address a, address d, address w, address f) CyberToshiNFT(a, d, w, f) {}
+    constructor(address a, address d, address w, address f) CyberToshiNFT(a, d, w, f, block.timestamp) {}
 
     function easy() external {
         currentTarget = type(uint256).max;
@@ -33,6 +34,12 @@ contract Harness is CyberToshiNFT {
 }
 
 contract RejectNFT {}
+
+contract ScheduledHarness is CyberToshiNFT {
+    constructor(address art, address dex, uint256 opensAt)
+        CyberToshiNFT(art, dex, dex, dex, opensAt) {}
+    function easy() external { currentTarget = type(uint256).max; }
+}
 
 contract ProtocolTest {
     Vm constant vm = Vm(address(uint160(uint256(keccak256("hevm cheat code")))));
@@ -72,6 +79,36 @@ contract ProtocolTest {
         (bool ok,) = address(vault).call{value: 0.02 ether}("");
         require(ok);
         vault.bootstrapCommunityLiquidity();
+    }
+
+    function testScheduledOpeningAndFirstMintInterval() public {
+        ScheduledHarness scheduled = new ScheduledHarness(address(art), address(dex), 20000);
+        require(scheduled.mintStartsAt() == 20000);
+        require(scheduled.windowStart() == 20000 && scheduled.lastMintAt() == 20000);
+        require(scheduled.effectiveTarget() == scheduled.EASIEST_TARGET());
+        scheduled.easy();
+        bytes32 previous = scheduled.prevWork();
+        vm.expectRevert(abi.encodeWithSelector(CyberToshiNFT.MintNotOpen.selector, 20000)); vm.prank(alice);
+        scheduled.mine{value: 0.001 ether}(0, 99, previous);
+        vm.warp(19999);
+        vm.expectRevert(abi.encodeWithSelector(CyberToshiNFT.MintNotOpen.selector, 20000)); vm.prank(bob);
+        scheduled.mine{value: 0.001 ether}(0, 99, previous);
+        require(scheduled.totalMinted() == 0 && address(scheduled).balance == 0);
+        vm.warp(20000);
+        vm.prank(alice); scheduled.mine{value: 0.001 ether}(0, 99, previous);
+        require(scheduled.ownerOf(1) == alice && scheduled.lastMintAt() == 20000);
+        previous = scheduled.prevWork();
+        vm.warp(20059);
+        vm.expectRevert(abi.encodeWithSelector(CyberToshiNFT.MintTooSoon.selector, 20060)); vm.prank(bob);
+        scheduled.mine{value: 0.001 ether}(0, 99, previous);
+        vm.warp(20060);
+        vm.prank(bob); scheduled.mine{value: 0.001 ether}(0, 99, previous);
+        require(scheduled.ownerOf(2) == bob);
+    }
+
+    function testOpeningCannotBeInPast() public {
+        vm.expectRevert();
+        new ScheduledHarness(address(art), address(dex), block.timestamp - 1);
     }
 
     function testRealPowAndDomainSeparation() public {

@@ -1,5 +1,21 @@
 # CyberToshi — tu guía de lanzamiento
 
+## Actualización: apertura programada
+
+Apertura acordada: **13 de septiembre de 2026 a las 03:00 CEST (01:00 UTC)**.
+La versión nueva incorpora `mintStartsAt` inmutable. `launch-config.json` guarda la hora.
+Para desplegar con la wallet del usuario en Brave: `npm run wallet:base`, y abrir
+`http://127.0.0.1:5181/deploy.html`. Son dos firmas: renderer y colección (crea BCAT y vault).
+El servidor comprueba red, cuenta, bytecode, argumentos y enlaces entre contratos.
+Los recibos se guardan en `deployments/wallet-8453.json`. La configuración de producción
+no se publica automáticamente: después hay que verificar el código en el explorador,
+copiar las direcciones verificadas, compilar y publicar. No hay revisión independiente completada.
+
+## Guía histórica — anterior a la apertura programada
+
+Los estados pendientes de las secciones siguientes describen la preparación anterior.
+Consultar `SEPOLIA-RESULTS.md` y `VALIDATION.md` para la evidencia posterior.
+
 Preparado el 12 de septiembre de 2026. **Proyecto preparado para continuar las pruebas, todavía NO autorizado ni listo para publicarse con dinero real.** No se ha desplegado en Base ni se ha subido a IPFS. Las direcciones de la web actual son de pruebas locales.
 
 ## 1. Lo primero que tienes que decidir

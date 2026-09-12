@@ -1,0 +1,27 @@
+{
+  "chainId": 84532,
+  "account": "0x5C4f2e4Be196e1D24E1511E7f12188EE788E0346",
+  "testDex": true,
+  "opensAt": "1789252736",
+  "deploymentHash": "0xdf9fdedfa702612915166bb812b36e6c21b977718902744e0ebe30b1c61c74cc",
+  "collection": "0x66345f717431548f02e8d32b29845851e53fcea1",
+  "beforeOpening": {
+    "block": "46742137",
+    "timestamp": "1789252562",
+    "revert": "MintNotOpen",
+    "method": "eth_call against live chain state"
+  },
+  "mintHash": "0xa9bbec92b5283119eff47b53f517a820de862d00100008988cb627ef6ef6ffa0",
+  "afterOpening": {
+    "block": "46742231",
+    "timestamp": "1789252750",
+    "tokenId": "1",
+    "validPow": true
+  },
+  "userCatsPreserved": [
+    1,
+    2
+  ],
+  "completedAt": "2026-09-12T22:38:59.924Z",
+  "status": "passed"
+}

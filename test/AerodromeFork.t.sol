@@ -34,7 +34,8 @@ contract AerodromeForkTest {
             address(renderer),
             0xcF77a3Ba9A5CA399B7c97c74d54e5b1Beb874E43,
             0x4200000000000000000000000000000000000006,
-            0x420DD381b31aEf6683db6B902084cB0FFECe40Da
+            0x420DD381b31aEf6683db6B902084cB0FFECe40Da,
+            block.timestamp
         );
         ToshiBuybackRouter vault = nft.buybackRouter();
         vm.deal(address(vault), 0.0202 ether);

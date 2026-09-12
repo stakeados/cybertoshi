@@ -1,5 +1,24 @@
 # CyberToshi — Base Sepolia test run completed
 
+## Scheduled opening update
+
+The release candidate now includes an immutable opening timestamp. A new collection
+[`0x66345f717431548f02e8d32b29845851e53fcea1`](https://sepolia.basescan.org/address/0x66345f717431548f02e8d32b29845851e53fcea1)
+was [deployed for this test](https://sepolia.basescan.org/tx/0xdf9fdedfa702612915166bb812b36e6c21b977718902744e0ebe30b1c61c74cc).
+Before its test opening timestamp 1789252736, a live-state call at block 46,742,137
+returned `MintNotOpen`. After waiting in real time, the test wallet
+[mined its own NFT #1](https://sepolia.basescan.org/tx/0xa9bbec92b5283119eff47b53f517a820de862d00100008988cb627ef6ef6ffa0)
+at block 46,742,231, timestamp 1789252750. The original user's cats remain untouched.
+See [the opening test report](reports/scheduled-opening-sepolia.json).
+
+22 local tests passed on the scheduled version, including the exact opening boundary
+and real Aerodrome on a Base fork. The complete live pool/burn/fee/buyback results
+below are for the preceding version, without the opening parameter. The added gate
+was tested separately on Sepolia; those economic flows were rerun locally, not again
+on the new Sepolia collection. No mainnet deployment is asserted by this report.
+
+## Earlier complete economic-flow run
+
 Network: Base Sepolia, chain ID **84532**. No mainnet deployment.
 The current collection redeems ETH **only by burning the NFT**, together with BCAT.
 The live suite completed successfully and the independent read-only verifier passed

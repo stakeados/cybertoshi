@@ -24,6 +24,7 @@ contract CyberToshiNFT is ERC721Enumerable, ReentrancyGuard {
     BasedCatToken public immutable bcatToken;
     ToshiBuybackRouter public immutable buybackRouter;
     IRenderer public immutable renderer;
+    uint256 public immutable mintStartsAt;
     uint256 public currentTarget = EASIEST_TARGET;
     bytes32 public prevWork;
     uint256 public totalMinted;
@@ -42,16 +43,19 @@ contract CyberToshiNFT is ERC721Enumerable, ReentrancyGuard {
     error InvalidPayment();
     error Unauthorized();
     error MintTooSoon(uint256 availableAt);
+    error MintNotOpen(uint256 opensAt);
 
-    constructor(address art, address dex, address weth, address factory) ERC721("CyberToshi", "CTOSHI") {
+    constructor(address art, address dex, address weth, address factory, uint256 opensAt) ERC721("CyberToshi", "CTOSHI") {
         require(art.code.length > 0, "Invalid renderer");
+        require(opensAt >= block.timestamp, "Opening time is in the past");
+        mintStartsAt = opensAt;
         renderer = IRenderer(art);
         bcatToken = new BasedCatToken();
         buybackRouter = new ToshiBuybackRouter(bcatToken, dex, weth, factory);
         bcatToken.setVault(address(buybackRouter));
         prevWork = keccak256(abi.encode(block.chainid, address(this), blockhash(block.number - 1)));
-        windowStart = block.timestamp;
-        lastMintAt = block.timestamp;
+        windowStart = opensAt;
+        lastMintAt = opensAt;
     }
 
     function mintPrice() public view returns (uint256) {
@@ -75,6 +79,7 @@ contract CyberToshiNFT is ERC721Enumerable, ReentrancyGuard {
     /// @notice Five-minute grace, then target doubles per completed five-minute recovery step.
     /// First reduction is at ten minutes. No transaction is needed to activate it.
     function effectiveTarget() public view returns (uint256) {
+        if (block.timestamp <= lastMintAt) return currentTarget;
         uint256 idle = block.timestamp - lastMintAt;
         if (idle < 10 minutes) return currentTarget;
         uint256 steps = (idle - 5 minutes) / 5 minutes;
@@ -88,6 +93,7 @@ contract CyberToshiNFT is ERC721Enumerable, ReentrancyGuard {
         nonReentrant
         returns (uint256 id)
     {
+        if (block.timestamp < mintStartsAt) revert MintNotOpen(mintStartsAt);
         if (totalMinted != 0 && block.timestamp < lastMintAt + MIN_MINT_INTERVAL)
             revert MintTooSoon(lastMintAt + MIN_MINT_INTERVAL);
         uint256 price = mintPrice();
