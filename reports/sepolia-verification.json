@@ -1,0 +1,93 @@
+{
+  "chainId": 84532,
+  "collection": "0x51bc317ba8c99282816199e33391a6e786807871",
+  "verifiedAt": "2026-09-12T21:13:31.164Z",
+  "checks": {
+    "deploymentMatchesBurnOnlyCode": "0xd478e0437091888522ad2c63b27121fdb17c880203b7da9747327b7090446dab",
+    "mintIntervalSeconds": "182",
+    "earlyMintRejected": {
+      "error": "MintTooSoon",
+      "block": "46718078",
+      "method": "historical eth_call"
+    },
+    "burnBeforePoolRejected": {
+      "error": "Community pool not launched",
+      "block": "46718078",
+      "method": "historical eth_call"
+    },
+    "unauthorizedBurnRejected": {
+      "error": "Unauthorized",
+      "block": "46718078",
+      "method": "historical eth_call"
+    },
+    "accruedEthWei": "266666666666666",
+    "userCatsPreserved": [
+      1,
+      2
+    ],
+    "combinedRedemption": {
+      "ethWei": "266666666666666",
+      "bcatUnits": "1000000000000000000000",
+      "traceVerified": true
+    },
+    "doubleBurnRejected": {
+      "error": "ERC721NonexistentToken",
+      "block": "46739514",
+      "method": "historical eth_call"
+    },
+    "lpCustodyAndZeroAllowance": true,
+    "simulatedFees": {
+      "burnedBcat": "100",
+      "collectedEthWei": "200000000000000"
+    },
+    "secondCollectionNoCredit": true,
+    "realCheckpointTimes": [
+      {
+        "label": "checkpoint-1",
+        "timestamp": 1789247346,
+        "hash": "0xc1307ca218d96aed1c068bd30b4026a762e7cf081b1b904dda49240d1a50eb0f"
+      }
+    ]
+  },
+  "pending": [
+    "buyback and cooldown",
+    "checkpoint-2",
+    "checkpoint-3",
+    "buyback"
+  ],
+  "transactions": {
+    "fundPool": {
+      "hash": "0xd13ac3a2ef5472c210e1bc12d3f0e55d38b292b9431bfd715bc6e1fd41adf057",
+      "block": "46739509"
+    },
+    "bootstrap": {
+      "hash": "0x8216551d1c9c9e2902fb3a7dcccdbba786db21d4f52a41ac323f6bfd1e2368a2",
+      "block": "46739511"
+    },
+    "burnOwnCat": {
+      "hash": "0x3a23d370a83f0f8fcd31dfb3f24a11a2272fad3d9d94911dea1ed1419f24e684",
+      "block": "46739514"
+    },
+    "approveTestFees": {
+      "hash": "0xdd7d451e9b616ff8f00bec08c3196201eecc11d41243e7c5cef1e3d8238a3b81",
+      "block": "46739517"
+    },
+    "seedSimulatedFees": {
+      "hash": "0x57593b1cbe5ac66c1024ba3f1734bc65954df780072ece211b4ed2cd09529508",
+      "block": "46739520"
+    },
+    "collectFees": {
+      "hash": "0xe82c8acf5ef557647580231e9ed65c8ba5768a64b610924ce7ec7bd755537e98",
+      "block": "46739523"
+    },
+    "collectFeesAgain": {
+      "hash": "0x4461b9aeb7c8671d1fdb11ffc81610951fce3948a89f13021f95c84eb9117f9f",
+      "block": "46739526"
+    },
+    "checkpoint-1": {
+      "hash": "0xc1307ca218d96aed1c068bd30b4026a762e7cf081b1b904dda49240d1a50eb0f",
+      "block": "46739529"
+    }
+  },
+  "status": "incomplete"
+}
