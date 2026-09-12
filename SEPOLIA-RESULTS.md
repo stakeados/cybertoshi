@@ -28,17 +28,28 @@ tool also verified the deployed contract bindings.
 | Other owner's NFT protected | Calling burn for user NFT #1 from the test wallet returns `Unauthorized` |
 | User NFTs preserved | #1 and #2 remain owned by `0x12B967b8b9eddB5185922375F1f7dC1F3791d9Dc`; the runner only sends burn transactions for its recorded test NFTs |
 
+## Pool, redemption and fee checks completed
+
+After receiving another 0.01 test ETH, the runner resumed without repeating mints.
+
+| Check | Evidence |
+| --- | --- |
+| Completed pool funding | [0.0192 ETH contribution](https://sepolia.basescan.org/tx/0xd13ac3a2ef5472c210e1bc12d3f0e55d38b292b9431bfd715bc6e1fd41adf057) |
+| Pool bootstrap | [Transaction](https://sepolia.basescan.org/tx/0x8216551d1c9c9e2902fb3a7dcccdbba786db21d4f52a41ac323f6bfd1e2368a2); vault holds 1e18 simulated LP units; BCAT allowance to the DEX reset to zero |
+| NFT #3 burned for ETH + BCAT | [Transaction](https://sepolia.basescan.org/tx/0x3a23d370a83f0f8fcd31dfb3f24a11a2272fad3d9d94911dea1ed1419f24e684); received 266,666,666,666,666 wei and 1,000 BCAT. ETH transfer verified using the transaction call trace; token balance delta verified at adjacent blocks |
+| Double burn rejected | Post-burn `eth_call` returns `ERC721NonexistentToken` |
+| Seeded simulated fees | [Transaction](https://sepolia.basescan.org/tx/0x57593b1cbe5ac66c1024ba3f1734bc65954df780072ece211b4ed2cd09529508); 100 BCAT and 0.0002 test ETH supplied explicitly by the test wallet |
+| Collected fees | [Transaction](https://sepolia.basescan.org/tx/0xe82c8acf5ef557647580231e9ed65c8ba5768a64b610924ce7ec7bd755537e98); 100 BCAT burned, 0.0002 ETH collected, LP balance unchanged |
+| No double fee credit | [Second collection](https://sepolia.basescan.org/tx/0x4461b9aeb7c8671d1fdb11ffc81610951fce3948a89f13021f95c84eb9117f9f) succeeded without increasing either fee counter |
+
 ## Outstanding
 
-At the funding checkpoint, the test wallet had **0.017997158729136878 ETH** and the
-vault needed **0.0192 ETH** to reach its 0.02 ETH bootstrap threshold. The runner
-stopped before contributing; additional test ETH has been requested. This is a
-test funding gap, not a protocol transaction failure.
-
-The following are **not yet passed on Sepolia**: pool bootstrap, combined ETH + BCAT
-redemption, simulated trading fee collection, real-time observation intervals,
-and buyback. A separate local contract suite has passed 20 tests, including the
-fork integration described below; that does not replace these live checks.
+The runner is waiting for real oracle observation intervals. The first checkpoint
+is [confirmed](https://sepolia.basescan.org/tx/0xc1307ca218d96aed1c068bd30b4026a762e7cf081b1b904dda49240d1a50eb0f),
+bringing the simulator to 2 of 4 required observations. The next two require more
+than 30 real minutes each. The Sepolia buyback and subsequent cooldown rejection
+are **not yet passed**. A separate local contract suite has passed 20 tests,
+including the fork integration below; that does not replace these live checks.
 
 ## Scope of the DEX tests
 
