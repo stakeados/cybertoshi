@@ -19,7 +19,14 @@ No pide, recibe ni almacena claves privadas.
    los enlaces entre contratos, el límite de 16.384 y el intervalo de 60 segundos.
 4. Abrir la aplicación local con el botón que aparece al terminar.
 
-Los recibos se guardan en `deployments/wallet-84532.json`. La transacción pendiente
+La versión corregida elimina el cobro separado de ETH: solo se cobra al quemar el
+NFT, junto con BCAT. El contrato anterior no es actualizable. Se reutilizan su
+renderer y TestDex si sus transacciones coinciden con los artefactos compilados;
+solo hace falta firmar una nueva colección, que crea otro token y otra tesorería.
+Los gatos, saldos y cobros anteriores permanecen en el contrato de prueba antiguo.
+
+Los nuevos recibos se guardan en `deployments/wallet-84532-burn-only.json`, conservando
+el manifiesto anterior. La transacción pendiente
 se conserva en el almacenamiento local del navegador para reintentar la verificación
 sin volver a enviarla. No borrar ese almacenamiento mientras haya una transacción
 pendiente. Una transacción revertida o reemplazada requiere revisar su recibo antes
@@ -33,7 +40,7 @@ permanece sin contratos y con el mint cerrado. No publicar la carpeta `output`.
 
 - Minteo real con CPU y GPU desde MetaMask, recibos y metadatos.
 - Rechazo de un segundo mint antes de 60 segundos y aceptación después.
-- Acumulación y cobro de ETH por los gatos anteriores.
+- Acumulación de ETH en los gatos anteriores, sin cobro separado; el saldo viaja con el NFT.
 - Bootstrap del pool simulado, BCAT de reserva, custodia del LP, cobro de fees,
   quema del NFT y recompensa BCAT. Esto requiere ETH de prueba adicional o aportar
   explícitamente el importe restante hasta 0,02 ETH al vault de prueba.

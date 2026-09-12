@@ -36,7 +36,7 @@ contract CyberToshiNFT is ERC721Enumerable, ReentrancyGuard {
     mapping(uint256 => uint256) public claimedAcc;
     mapping(uint256 => bytes32) public seedOf;
     event Mined(uint256 indexed tokenId, address indexed miner, bytes32 seed);
-    event RentClaimed(uint256 indexed tokenId, address indexed recipient, uint256 amount);
+    event RentRedeemed(uint256 indexed tokenId, address indexed recipient, uint256 amount);
     event Burned(uint256 indexed tokenId, uint256 reward);
     error InvalidWork();
     error InvalidPayment();
@@ -138,21 +138,7 @@ contract CyberToshiNFT is ERC721Enumerable, ReentrancyGuard {
         return (accPerCat - claimedAcc[id]) / SCALE;
     }
 
-    function claimRent(uint256 id) external nonReentrant {
-        _claim(id, msg.sender);
-    }
-
-    function _claim(uint256 id, address recipient) internal {
-        if (ownerOf(id) != recipient) revert Unauthorized();
-        uint256 amount = claimableRent(id);
-        claimedAcc[id] += amount * SCALE;
-        if (amount != 0) {
-            (bool ok,) = recipient.call{value: amount}("");
-            require(ok, "Rent transfer failed");
-        }
-        emit RentClaimed(id, recipient, amount);
-    }
-
+    /// @notice The only rent redemption path: destroy the NFT and receive ETH plus BCAT atomically.
     function burn(uint256 id) external nonReentrant {
         if (ownerOf(id) != msg.sender) revert Unauthorized();
         require(buybackRouter.bootstrapped(), "Community pool not launched");
@@ -166,6 +152,7 @@ contract CyberToshiNFT is ERC721Enumerable, ReentrancyGuard {
             (bool ok,) = msg.sender.call{value: rent}("");
             require(ok, "Rent transfer failed");
         }
+        emit RentRedeemed(id, msg.sender, rent);
         emit Burned(id, reward);
     }
 

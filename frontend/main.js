@@ -165,17 +165,12 @@ async function inventory() {
       metadata.attributes.find((a) => a.trait_type === "Rarity Tier").value +
       " · " +
       amount(rent) +
-      " ETH claimable";
+      " ETH accumulated · redeem on burn";
     const actions = document.createElement("div");
     actions.className = "actions";
-    const claim = document.createElement("button");
-    claim.className = "secondary";
-    claim.textContent = "Claim ETH";
-    claim.disabled = rent === 0n || busy;
-    claim.onclick = () => send("nft", "claimRent", [id]).catch(fail);
     const burn = document.createElement("button");
     burn.className = "danger";
-    burn.textContent = "Burn for BCAT";
+    burn.textContent = "Burn for ETH + BCAT";
     burn.disabled = !launched || busy;
     burn.onclick = async () => {
       try {
@@ -190,7 +185,7 @@ async function inventory() {
         fail(e);
       }
     };
-    actions.append(claim, burn);
+    actions.append(burn);
     body.append(title, label, actions);
     card.append(image, body);
     $("cats").append(card);

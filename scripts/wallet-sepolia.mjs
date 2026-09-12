@@ -18,8 +18,20 @@ const artifacts = Object.fromEntries([...names, 'BasedCatToken', 'ToshiBuybackRo
   const a = JSON.parse(readFileSync(resolve(repo, `out/${name}.sol/${name}.json`), 'utf8'));
   return [name, { abi: a.abi, bytecode: a.bytecode.object }];
 }));
-const manifestPath = resolve(repo, 'deployments/wallet-84532.json');
+const manifestPath = resolve(repo, 'deployments/wallet-84532-burn-only.json');
 let state = existsSync(manifestPath) ? JSON.parse(readFileSync(manifestPath, 'utf8')) : { chainId: 84532, account, receipts: [] };
+// Reuse unchanged test infrastructure; never reuse the previous collection, which allowed separate ETH claims.
+const previousPath = resolve(repo, 'deployments/wallet-84532.json');
+if (!existsSync(manifestPath) && existsSync(previousPath)) {
+  const previous = JSON.parse(readFileSync(previousPath, 'utf8'));
+  if (previous.chainId !== 84532 || previous.account.toLowerCase() !== account.toLowerCase()) throw Error('Previous deployment mismatch');
+  for (const name of ['TestDex', 'CyberToshiRenderer']) {
+    if (previous[name]) {
+      state[name] = previous[name];
+      state.receipts.push(...previous.receipts.filter(r => r.name === name));
+    }
+  }
+}
 if (state.chainId !== 84532 || state.account.toLowerCase() !== account.toLowerCase()) throw Error('Manifest account or chain mismatch');
 mkdirSync(root, { recursive: true });
 cpSync(resolve(repo, 'frontend'), root, { recursive: true });

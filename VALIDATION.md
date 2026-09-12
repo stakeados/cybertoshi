@@ -1,5 +1,13 @@
 # Verification record — 12 September 2026
 
+## ETH redemption only on NFT burn — current version
+
+20 tests passed, zero failed or skipped, including Aerodrome on Base fork 51,206,783 and 256 solvency fuzz cases. Production build passes. NFT runtime: 8,622 bytes.
+
+Removed the separate `claimRent` entrypoint and frontend claim button. ETH accumulates with the NFT and is redeemable only when its owner burns it for ETH plus BCAT, after pool launch. Tests cover the removed selector rejecting calls, transfer of accrued ETH with ownership, owner-only redemption, no double burn, and atomic rollback of NFT destruction and token issuance if the ETH recipient rejects payment.
+
+The earlier collection at `0x8f993333ecb294d1508c5627cb9d45d6583a4f0e` was deployed on Base Sepolia and its first mint was verified on-chain. It allows separate ETH claims and is now superseded for launch purposes. The corrected collection has NOT yet been deployed or tested with an external wallet. The local deployment tool reuses the verified renderer and TestDex, requires a new collection signature, and preserves the old manifest. Historical results below refer to previous versions.
+
 ## Global mint interval — latest run
 
 19 tests passed, zero failed or skipped, including Aerodrome on Base fork 51,206,150. The contract enforces a minimum of 60 seconds between accepted mints after the first. Tests reject same-timestamp and 59-second attempts across wallets, including after burning all living cats, and accept at exactly 60 seconds.

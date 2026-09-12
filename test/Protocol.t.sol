@@ -138,7 +138,7 @@ contract ProtocolTest {
         require(vault.bootstrapped());
     }
 
-    function testRentFollowsNFTAndNoDoubleClaim() public {
+    function testRentFollowsNFTAndOnlyRedeemsOnBurn() public {
         mint(alice);
         mint(bob);
         require(nft.claimableRent(1) == 0.0016 ether && nft.claimableRent(2) == 0);
@@ -146,13 +146,43 @@ contract ProtocolTest {
         nft.transferFrom(alice, bob, 1);
         vm.expectRevert();
         vm.prank(alice);
-        nft.claimRent(1);
+        nft.burn(1);
+        // Even the owner cannot withdraw ETH through the removed selector.
+        uint256 held = bob.balance;
+        vm.prank(bob);
+        (bool claimed,) = address(nft).call(abi.encodeWithSignature("claimRent(uint256)", 1));
+        require(!claimed && bob.balance == held && nft.ownerOf(1) == bob);
+        vm.expectRevert();
+        vm.prank(bob);
+        nft.burn(1);
+        (bool funded,) = address(vault).call{value: 0.02 ether}("");
+        require(funded);
+        vault.bootstrapCommunityLiquidity();
         uint256 before = bob.balance;
         vm.prank(bob);
-        nft.claimRent(1);
+        nft.burn(1);
+        vm.expectRevert();
         vm.prank(bob);
-        nft.claimRent(1);
+        nft.burn(1);
         require(bob.balance == before + 0.0016 ether && nft.claimableRent(1) == 0);
+        require(token.balanceOf(bob) == 1000 ether && nft.totalSupply() == 1);
+    }
+
+    function testBurnRevertsAtomicallyIfOwnerRejectsETH() public {
+        mint(alice);
+        mint(bob);
+        bootstrap();
+        RejectNFT reject = new RejectNFT();
+        vm.prank(alice);
+        nft.transferFrom(alice, address(reject), 1);
+        uint256 ethBefore = address(nft).balance;
+        uint256 supplyBefore = token.totalSupply();
+        vm.expectRevert();
+        vm.prank(address(reject));
+        nft.burn(1);
+        require(nft.ownerOf(1) == address(reject) && nft.burnedCount() == 0);
+        require(nft.claimableRent(1) == 0.0016 ether && address(nft).balance == ethBefore);
+        require(token.totalSupply() == supplyBefore && token.balanceOf(address(reject)) == 0);
     }
 
     function testSafeTransfersAndZeroAddress() public {
@@ -379,12 +409,15 @@ contract ProtocolTest {
         for (uint256 i; i < count; i++) {
             mint(i % 2 == 0 ? alice : bob);
         }
+        (bool funded,) = address(vault).call{value: 0.02 ether}("");
+        require(funded);
+        vault.bootstrapCommunityLiquidity();
         uint256 sum;
         for (uint256 id = 1; id <= count; id++) {
             sum += nft.claimableRent(id);
             address who = nft.ownerOf(id);
             vm.prank(who);
-            nft.claimRent(id);
+            nft.burn(id);
         }
         require(sum <= count * 0.0008 ether && address(nft).balance == count * 0.0008 ether - sum);
     }

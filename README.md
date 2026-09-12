@@ -8,7 +8,7 @@ A working onchain NFT / ERC-20 experiment targeting Base. The interface and docu
 | --- | --- |
 | Mint fee | 0.001 ETH + 0.0001 ETH per 512 lifetime mints; last epoch 0.0041 ETH, plus gas |
 | Maximum issuance | 16,384 cats, lifetime cap; burning does not reopen slots |
-| Rent allocation | 80% to prior living cats; claimed ETH travels with its owner, unclaimed rent travels with the NFT |
+| Rent allocation | 80% accumulates on prior living cats and travels with the NFT; redeemable only by burning for ETH + BCAT together |
 | Empty collection | The rent allocation waits for a future mint with a prior living holder |
 | Community allocation | 20% accumulates in an immutable vault |
 | Launch threshold | 0.02 ETH: 100 ordinary mints; voluntary donations can accelerate it |
@@ -71,7 +71,7 @@ The deployment writes `frontend/public/deployment.json`. Its addresses are check
 
 `node scripts/deploy.mjs --network base-sepolia` displays a review plan without broadcasting. To deploy, set `DEPLOYER_PRIVATE_KEY` in your own terminal and add `--broadcast`. Do not put keys into a chat, a committed file or the browser. `RPC_URL` can override the RPC; the chain ID is verified.
 
-Sepolia deploys the restricted `TestDex` too, clearly labelled in the UI. That checks mint, claim, burn and treasury interactions with test ETH. It does not pretend to be an Aerodrome deployment on Sepolia. The `TestDex` constructor rejects Base mainnet and should never be used as production infrastructure.
+Sepolia deploys the restricted `TestDex` too, clearly labelled in the UI. That checks mint, combined ETH + BCAT redemption by burning, and treasury interactions with test ETH. It does not pretend to be an Aerodrome deployment on Sepolia. The `TestDex` constructor rejects Base mainnet and should never be used as production infrastructure.
 
 ### Real Aerodrome integration test
 
@@ -93,7 +93,7 @@ After a public deployment, run `npm run build` again with its deployment configu
 
 ## Security boundaries and remaining risks
 
-- Standard NFT and token accounting uses pinned OpenZeppelin contracts. Economic entrypoints have reentrancy guards. Only NFT owners can claim or burn; market approvals do not authorize burning.
+- Standard NFT and token accounting uses pinned OpenZeppelin contracts. Economic entrypoints have reentrancy guards. Only NFT owners can burn to redeem ETH + BCAT; market approvals do not authorize burning. There is no separate ETH withdrawal function.
 - A failed pool launch reverts the reserve issuance as well. Mint fee reception does not call the DEX, so failed maintenance cannot block minting.
 - Buybacks need at least four pool observations; the last two completed intervals exclude the empty initial interval. The latest observation must be no older than one hour. Anyone can call `checkpoint`; on Aerodrome a new sample needs more than 30 minutes. New pools need roughly 90 minutes of observations before the first buyback.
 - A TWAP and a bounded swap size reduce some price-execution risks. They do not eliminate sustained manipulation of a shallow pool or all MEV. 0.02 ETH is deliberately small initial liquidity.

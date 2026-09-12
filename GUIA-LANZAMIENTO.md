@@ -40,7 +40,7 @@ No envíes claves privadas, frases semilla ni claves API al chat ni las pongas e
 
 **A. Cerrar reglas y revisar.** Aplicar las dos decisiones pendientes, simular la evolución de precio, dificultad y emisión, y revisar los contratos. La subida de precio ya está probada en el límite 512 y en el último mint, con reparto 80/20 y rechazo de importes incorrectos.
 
-**B. Probar en Base Sepolia.** Desplegar con ETH de prueba y conectar una wallet real desde el navegador. Comprobar cambiar de red, minar, rechazar una firma, mintear, reclamar, quemar y recoger comisiones. Sepolia usa un DEX simulado, señalado en la web; la compatibilidad real con Aerodrome se prueba en una copia local de Base.
+**B. Probar en Base Sepolia.** Desplegar con ETH de prueba y conectar una wallet real desde el navegador. Comprobar cambiar de red, minar, rechazar una firma, mintear, acumular ETH, quemar para recibir ETH y BCAT juntos y recoger comisiones. No existe cobro de ETH sin quemar el NFT. Sepolia usa un DEX simulado, señalado en la web; la compatibilidad real con Aerodrome se prueba en una copia local de Base.
 
 **C. Desplegar en Base.** El despliegue publica el generador de dibujos y la colección; la colección crea el token y el fondo. Guardar el archivo `deployments/8453.json`, las cuatro direcciones y los recibos. La pool todavía no se crea en este paso. El script registra avances para reanudar; no reutilizar un manifiesto de otro código o red.
 
