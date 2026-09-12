@@ -10,6 +10,7 @@
     "test": "node scripts/test.mjs",
     "test:client": "node scripts/check.mjs",
     "deploy": "node scripts/deploy.mjs",
+    "wallet:sepolia": "node scripts/wallet-sepolia.mjs",
     "abi": "node scripts/export-abi.mjs"
   },
   "dependencies": {
