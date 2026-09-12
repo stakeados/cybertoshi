@@ -1,7 +1,8 @@
 {
   "priceScheduleConfirmed": true,
   "difficultyParametersConfirmed": false,
-  "burnRewardScheduleConfirmed": false,
+  "burnRewardScheduleConfirmed": true,
   "externalWalletTestCompleted": false,
   "independentReviewCompleted": false
 }
+

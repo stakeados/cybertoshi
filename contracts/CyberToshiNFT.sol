@@ -19,7 +19,7 @@ contract CyberToshiNFT is ERC721Enumerable, ReentrancyGuard {
     uint256 public constant EPOCH_SIZE = 512;
     uint256 public constant SCALE = 1e18;
     uint256 public constant EASIEST_TARGET = type(uint256).max >> 16;
-    uint256 public constant HARDEST_TARGET = type(uint256).max >> 24;
+    uint256 public constant HARDEST_TARGET = 1;
     BasedCatToken public immutable bcatToken;
     ToshiBuybackRouter public immutable buybackRouter;
     IRenderer public immutable renderer;
@@ -58,7 +58,9 @@ contract CyberToshiNFT is ERC721Enumerable, ReentrancyGuard {
     }
 
     function burnReward() public view returns (uint256) {
-        return uint256(1000 ether) >> currentEpoch();
+        uint256 reward = 1000 ether;
+        for (uint256 i; i < currentEpoch(); i++) reward = reward * 95 / 100;
+        return reward;
     }
 
     function workHash(address miner, uint256 nonce, bytes32 previous, bytes32 anchor) public view returns (bytes32) {
@@ -94,8 +96,8 @@ contract CyberToshiNFT is ERC721Enumerable, ReentrancyGuard {
         prevWork = work;
         if (id % 8 == 0) {
             uint256 elapsed = block.timestamp - windowStart;
-            elapsed = elapsed < 120 ? 120 : elapsed > 480 ? 480 : elapsed;
-            currentTarget = Math.mulDiv(currentTarget, elapsed, 240);
+            elapsed = elapsed < 240 ? 240 : elapsed > 960 ? 960 : elapsed;
+            currentTarget = Math.mulDiv(currentTarget, elapsed, 480);
             currentTarget = currentTarget < HARDEST_TARGET
                 ? HARDEST_TARGET
                 : currentTarget > EASIEST_TARGET ? EASIEST_TARGET : currentTarget;
@@ -148,4 +150,5 @@ contract CyberToshiNFT is ERC721Enumerable, ReentrancyGuard {
         return renderer.renderTokenURI(id, seedOf[id]);
     }
 }
+
 

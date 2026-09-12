@@ -1,0 +1,49 @@
+{
+  "assumptions": "Seeded Monte Carlo: exponential independent hash search; constant effective total hashrate except named shock. No network latency, stale work, wallet delay, fees, demand or transaction contention. Recovery only after 8 accepted mints. Not a forecast.",
+  "results": [
+    {
+      "scenario": "100 kH/s",
+      "runs": 100,
+      "medianDays": 12.69581135082379,
+      "p05Days": 12.607401527655295,
+      "p95Days": 12.797688990612539,
+      "worstGlobalGapHours": 0.48317506889567213
+    },
+    {
+      "scenario": "1 MH/s",
+      "runs": 100,
+      "medianDays": 12.67404682227784,
+      "p05Days": 12.600662013852759,
+      "p95Days": 12.775962169917381,
+      "worstGlobalGapHours": 0.4717549723476956
+    },
+    {
+      "scenario": "100 MH/s",
+      "runs": 100,
+      "medianDays": 12.635575782502315,
+      "p05Days": 12.532379259639917,
+      "p95Days": 12.744373420197864,
+      "worstGlobalGapHours": 0.4518977109306656
+    },
+    {
+      "scenario": "10 GH/s",
+      "runs": 100,
+      "medianDays": 12.592616536781872,
+      "p05Days": 12.510013606562781,
+      "p95Days": 12.703295931432065,
+      "worstGlobalGapHours": 0.429476065489338
+    },
+    {
+      "scenario": "100 MH/s then 100 kH/s after mint 8192",
+      "runs": 100,
+      "medianDays": 23.50463891280992,
+      "p05Days": 18.540169235601095,
+      "p95Days": 31.740671459072047,
+      "worstGlobalGapHours": 161.42349484781718
+    }
+  ],
+  "rewardAtFinalEpochBCAT": 193.71148445850113,
+  "illustrativeImmediateBurnIssuanceBCAT": 8255588.110629407,
+  "conservativeRewardUpperBoundBCAT": 16384000,
+  "communityReserveBCAT": 1000000
+}

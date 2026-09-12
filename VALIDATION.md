@@ -1,5 +1,13 @@
 # Verification record — 12 September 2026
 
+## Latest parameter test run
+
+17 tests passed (16 protocol tests including 256 fuzz cases, plus real Aerodrome integration on Base fork block 51,199,697). The reward now decays 5% per 512 lifetime mints, with equal rewards across rarity tiers. All epoch boundaries through epoch 32 are checked. Fast-window adjustment doubles difficulty; the target window is now 480 seconds for eight mints. The old 24-bit ceiling is removed. Earlier run details below are historical.
+
+`node scripts/simulate-mining.mjs` produces `reports/mining-simulation.json`: 100 seeded trials for each of five scenarios. Stable effective hashrates from 100 kH/s to 10 GH/s yield median completion times around 12.6–12.7 days in this simplified model. A 1,000-fold hashrate drop halfway produces a median of 23.5 days and individual global gaps up to 161 hours across these trials. These are modeled outcomes, not hardware measurements or forecasts. No wallet latency, stale work, demand or transaction contention is modeled.
+
+**Open finding:** the retarget only changes after eight accepted mints, so abrupt hashrate loss can stall mining. Difficulty parameters remain unapproved for mainnet until recovery is designed and tested. No Sepolia deployment or external-wallet test was performed in this run. Public website remains pre-launch.
+
 The final source is verified locally, not deployed to a public network. The original prototype has not been changed.
 
 ## Completed

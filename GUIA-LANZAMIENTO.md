@@ -11,8 +11,8 @@ Solo quedan dos decisiones económicas. No necesitas programarlas tú: cuando la
 | Colección | 16.384 gatos; quemarlos no reabre plazas |
 | Precio | Acordado e implementado: 0,001 ETH + 0,0001 ETH cada 512 mints; última época 0,0041 ETH |
 | Reparto de mints | 80% a los gatos vivos anteriores, 20% al fondo comunitario; cero para el creador |
-| Dificultad | **Pendiente de confirmar.** Actualmente ajusta cada 8 mints hacia 30 segundos por mint global, limitada entre 16 y 24 bits. No tiene subida mínima por época y no garantiza duración |
-| BCAT al quemar | **Pendiente de confirmar.** Actualmente 1.000 BCAT al inicio, reducidos un 50% cada 512 mints según la época de quema. El 5% hablado NO está aplicado |
+| Dificultad | **Pendiente de confirmar.** La versión de pruebas ajusta cada 8 mints hacia 60 segundos por mint global, sin el antiguo techo de 24 bits. La recuperación tras caídas de potencia requiere más trabajo. No tiene subida mínima por época y no garantiza duración |
+| BCAT al quemar | Confirmado e implementado: 1.000 BCAT al inicio, reducidos un 5% cada 512 mints según la época de quema; todos los gatos iguales |
 | Pool inicial | Tras reunir 0,02 ETH se puede emparejar con 1.000.000 BCAT emitidos una sola vez. Los primeros 100 mints aportan exactamente ese ETH |
 | Liquidez y comisiones | LP retenidos permanentemente por el contrato; BCAT de comisiones se quema y WETH se convierte en ETH para recompras. Nadie cobra por ejecutar la recogida |
 
@@ -113,5 +113,6 @@ Abrir `http://127.0.0.1:5174/ipfs/local-preview/`. Esta simulación comprueba ru
 - [Metadatos de OpenSea](https://docs.opensea.io/docs/metadata-standards)
 - [Registro técnico de pruebas](VALIDATION.md)
 
-**Tu siguiente paso:** confirmar dificultad y recompensa BCAT. El resto de esta guía permite ejecutar y verificar el lanzamiento sin inventar decisiones por el camino.
+**Tu siguiente paso:** resolver la recuperación de dificultad tras caídas de potencia. El resto de esta guía permite ejecutar y verificar el lanzamiento sin inventar decisiones por el camino.
+
 

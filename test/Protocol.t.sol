@@ -28,6 +28,7 @@ contract Harness is CyberToshiNFT {
     function setMintCount(uint256 count) external {
         totalMinted = count;
     }
+    function setTarget(uint256 target) external { currentTarget = target; }
 }
 
 contract RejectNFT {}
@@ -263,13 +264,44 @@ contract ProtocolTest {
         nft.mine{value: 0.0041 ether}(0, 99, previous);
     }
 
-    function testHalvingAndSupplyCap() public {
+    function testFastMintWindowDoublesDifficulty() public {
+        nft.setMintCount(7);
+        vm.warp(10480);
+        mint(alice);
+        require(nft.currentTarget() == nft.EASIEST_TARGET());
+        nft.setMintCount(15);
+
+
+        vm.warp(10481);
+        bytes32 previous = nft.prevWork();
+
+
+        require(nft.HARDEST_TARGET() == 1);
+        nft.setTarget(nft.EASIEST_TARGET());
+        uint256 nonce;
+        while(uint256(nft.workHash(alice, nonce, previous, bytes32(uint256(1234)))) >= nft.currentTarget()) nonce++;
+        vm.prank(alice);
+        nft.mine{value: 0.001 ether}(nonce,99,previous);
+        require(nft.currentTarget() == nft.EASIEST_TARGET()/2);
+    }
+
+    function testRewardAcrossAllEpochs() public {
+        uint256 expected = 1000 ether;
+        for(uint256 epoch; epoch <= 32; epoch++) {
+            nft.setMintCount(epoch*512);
+            require(nft.burnReward() == expected);
+            if(epoch<32){nft.setMintCount(epoch*512+511);require(nft.burnReward()==expected);}
+            expected = expected*95/100;
+        }
+    }
+
+    function testFivePercentDecayAndSupplyCap() public {
         nft.setMintCount(511);
         require(nft.burnReward() == 1000 ether);
         nft.setMintCount(512);
-        require(nft.burnReward() == 500 ether);
+        require(nft.burnReward() == 950 ether);
         nft.setMintCount(1024);
-        require(nft.burnReward() == 250 ether);
+        require(nft.burnReward() == 902.5 ether);
         nft.setMintCount(16384);
         bytes32 previous = nft.prevWork();
         vm.expectRevert();
@@ -311,3 +343,6 @@ contract ProtocolTest {
         require(sum <= count * 0.0008 ether && address(nft).balance == count * 0.0008 ether - sum);
     }
 }
+
+
+
