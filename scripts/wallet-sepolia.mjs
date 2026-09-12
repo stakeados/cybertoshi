@@ -91,6 +91,19 @@ async function saveDeployment(name, hash) {
 const server = await createServer({ root, configFile: false, server: { host: '127.0.0.1', port: 5180, strictPort: true }, plugins: [{
   name: 'local-sepolia-wallet',
   configureServer(server) {
+    // The local root must guide the user to wallet setup until the replacement
+    // collection is verified, rather than showing the production Coming soon screen.
+    server.middlewares.use((req, res, next) => {
+      const path = req.url?.split('?')[0];
+      if (!state.config && (path === '/' || path === '/index.html')) {
+        res.statusCode = 302;
+        res.setHeader('Location', '/deploy.html');
+        res.setHeader('Cache-Control', 'no-store');
+        res.end();
+        return;
+      }
+      next();
+    });
     server.middlewares.use('/__test', async (req, res) => {
       res.setHeader('Content-Type', 'application/json');
       res.setHeader('Cache-Control', 'no-store');
