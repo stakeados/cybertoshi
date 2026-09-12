@@ -1,5 +1,9 @@
 # CyberToshi — tu guía de lanzamiento
 
+**Estado actual:** los dos despliegues de mainnet ya están firmados y los cuatro contratos
+tienen coincidencia exacta en Sourcify. No repetir firmas. Direcciones, recibos y límites
+de las comprobaciones en [MAINNET-RESULTS.md](MAINNET-RESULTS.md).
+
 ## Actualización: apertura programada
 
 Apertura acordada: **13 de septiembre de 2026 a las 03:00 CEST (01:00 UTC)**.

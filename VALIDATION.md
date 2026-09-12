@@ -1,5 +1,14 @@
 # Verification record — 12 September 2026
 
+## Mainnet deployment — 13 September
+
+The user has signed both deployments. The collection is
+`0x333fef2bdbfdc2858a27c23594747e7e2669df42` on Base, opening at 01:00 UTC / 03:00 Madrid.
+All four contracts have exact creation/runtime matches on Sourcify; constructor inputs,
+contract bindings and pre-opening rejection were independently checked against mainnet.
+See [MAINNET-RESULTS.md](MAINNET-RESULTS.md). Public source verification is not an audit;
+`release:check` continues to report the independent-review gate as incomplete.
+
 ## Scheduled opening — 13 September release candidate
 
 The constructor now takes an immutable `mintStartsAt`. `mine` rejects before that chain

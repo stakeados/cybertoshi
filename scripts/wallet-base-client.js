@@ -18,7 +18,7 @@ addEventListener('eip6963:announceProvider', event => discover(event.detail.info
 dispatchEvent(new Event('eip6963:requestProvider'));
 setTimeout(() => {
   if (!discovered.size && window.ethereum) discover({ uuid: 'injected', name: 'Wallet del navegador' }, window.ethereum);
-  if (!discovered.size) $('status').textContent = 'Abre esta dirección en el navegador donde tienes MetaMask instalado.';
+  if (!discovered.size && !plan?.state.config) $('status').textContent = 'Abre esta dirección en el navegador donde tienes MetaMask instalado.';
 }, 800);
 function render() {
   $('steps').replaceChildren(...names.map((name, i) => {
@@ -66,9 +66,9 @@ $('deploy').onclick = async () => {
   busy = true; render();
   try {
     await guard();
-    const name = names.find(n => !plan.state[n]);
+    const name = names.find(n => !plan.state[n]) || 'CyberToshiNFT';
     const key = `cybertoshi:8453:${plan.account}:${name}`;
-    let hash = localStorage.getItem(key);
+    let hash = plan.state.receipts.find(r => r.name === name)?.hash || localStorage.getItem(key);
     if (!hash) {
       if (Date.now() >= plan.launch.mintStartsAt * 1000) throw Error('La hora de apertura ya pasó. Revisa el lanzamiento antes de firmar.');
       const args = name === 'CyberToshiNFT' ? [plan.state.CyberToshiRenderer, plan.dex.router, plan.dex.weth, plan.dex.factory, BigInt(plan.launch.mintStartsAt)] : [];

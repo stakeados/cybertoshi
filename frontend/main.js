@@ -2,6 +2,7 @@ import {
   createPublicClient,
   createWalletClient,
   http,
+  fallback,
   custom,
   defineChain,
   formatEther,
@@ -481,7 +482,9 @@ async function init() {
   if (chain.id === 31337 && (!['localhost','127.0.0.1'].includes(location.hostname) || !['localhost','127.0.0.1'].includes(new URL(cfg.rpcUrl || 'http://127.0.0.1:8545').hostname))) throw Error('Local test mode only works on this computer.');
   client = createPublicClient({
     chain,
-    transport: http(cfg.rpcUrl || chain.rpcUrls.default.http[0]),
+    transport: chain.id === 8453
+      ? fallback([http(cfg.rpcUrl || 'https://base-rpc.publicnode.com', {batch:true}), http('https://mainnet.base.org', {batch:true})])
+      : http(cfg.rpcUrl || chain.rpcUrls.default.http[0]),
   });
   $("network").textContent = chain.name + (cfg.testDex ? " · TEST DEX" : "");
   if (chain.id === 31337) $("connect").textContent = 'Use local test wallet';

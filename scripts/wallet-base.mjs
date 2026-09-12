@@ -3,7 +3,7 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomBytes } from 'node:crypto';
 import { createServer } from 'vite';
-import { createPublicClient, http, encodeDeployData, formatEther } from 'viem';
+import { createPublicClient, http, fallback, encodeDeployData, formatEther } from 'viem';
 import { base } from 'viem/chains';
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -14,7 +14,8 @@ if (launch.chainId !== 8453 || launch.account.toLowerCase() !== account.toLowerC
     Date.parse(launch.opensAtUTC) / 1000 !== launch.mintStartsAt) throw Error('Invalid launch configuration');
 const origin = 'http://127.0.0.1:5181';
 const secret = randomBytes(32).toString('hex');
-const client = createPublicClient({ chain: base, transport: http() });
+const rpcUrl = 'https://base-rpc.publicnode.com';
+const client = createPublicClient({ chain: base, transport: fallback([http(rpcUrl, {batch:true}), http('https://mainnet.base.org', {batch:true})]) });
 if (await client.getChainId() !== 8453) throw Error('Expected Base mainnet');
 const dex = {
   router: '0xcF77a3Ba9A5CA399B7c97c74d54e5b1Beb874E43',
@@ -41,7 +42,7 @@ cpSync(resolve(repo, 'scripts/wallet-base-client.js'), resolve(root, 'deploy.js'
 function writeConfig() {
   writeFileSync(resolve(root, 'public/deployment.json'), JSON.stringify(state.config || {
     chainId: 8453, collection: null, renderer: null, token: null, vault: null,
-    testDex: false, rpcUrl: base.rpcUrls.default.http[0],
+    testDex: false, rpcUrl,
   }, null, 2));
 }
 writeConfig();
@@ -70,6 +71,10 @@ async function saveDeployment(name, hash) {
   if (state[name] && state[name].toLowerCase() !== r.contractAddress.toLowerCase()) throw Error('A different deployment is already saved');
   state[name] = r.contractAddress;
   if (!state.receipts.some(x => x.hash === hash)) state.receipts.push({ name, hash, block: r.blockNumber.toString(), gasUsed: r.gasUsed.toString() });
+  // Persist confirmed receipts before optional RPC binding reads. A transient read
+  // failure must never lose a successful deployment or invite a second signature.
+  mkdirSync(dirname(manifestPath), { recursive: true });
+  writeFileSync(manifestPath, JSON.stringify(state, null, 2));
   if (names.every(name => state[name])) {
     const read = (name, address, functionName) => client.readContract({ address, abi: artifacts[name].abi, functionName });
     const [token, vault, renderer, interval, supply, opensAt] = await Promise.all(['bcatToken','buybackRouter','renderer','MIN_MINT_INTERVAL','MAX_SUPPLY','mintStartsAt'].map(fn => read('CyberToshiNFT', state.CyberToshiNFT, fn)));
@@ -81,13 +86,16 @@ async function saveDeployment(name, hash) {
     ]);
     for (const [actual, expected] of [[collection,state.CyberToshiNFT],[tokenVault,vault],[vaultToken,token],[router,dex.router],[weth,dex.weth],[factory,dex.factory]])
       if (actual.toLowerCase() !== expected.toLowerCase()) throw Error('Contract binding mismatch');
-    state.config = { chainId: 8453, collection: state.CyberToshiNFT, renderer, token, vault, testDex: false, rpcUrl: base.rpcUrls.default.http[0] };
+    state.config = { chainId: 8453, collection: state.CyberToshiNFT, renderer, token, vault, testDex: false, rpcUrl };
   }
   mkdirSync(dirname(manifestPath), { recursive: true });
   writeFileSync(manifestPath, JSON.stringify(state, null, 2));
   writeConfig();
   console.log(`Verified ${name}: ${hash}`);
   return state;
+}
+if (names.every(name => state[name])) {
+  await saveDeployment('CyberToshiNFT', state.receipts.find(r => r.name === 'CyberToshiNFT').hash);
 }
 const server = await createServer({ root, configFile: false, server: { host: '127.0.0.1', port: 5181, strictPort: true }, plugins: [{
   name: 'local-mainnet-wallet',

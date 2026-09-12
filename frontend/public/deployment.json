@@ -1,1 +1,9 @@
-{"chainId":8453,"collection":null,"renderer":null,"token":null,"vault":null,"testDex":false,"rpcUrl":"https://mainnet.base.org"}
+{
+  "chainId": 8453,
+  "collection": "0x333fef2bdbfdc2858a27c23594747e7e2669df42",
+  "renderer": "0xbAbc7A964e7a744DcF676636B3c23089389c9E0C",
+  "token": "0xbc384D49529AEb3B20B270586457F9Ba57e514e3",
+  "vault": "0x69a16aD3eaF02b4A39342CfD6609F962636E619d",
+  "testDex": false,
+  "rpcUrl": "https://base-rpc.publicnode.com"
+}
