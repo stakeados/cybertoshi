@@ -1,5 +1,15 @@
 # Verification record — 12 September 2026
 
+## Idle recovery update — latest
+
+18 tests passed, zero failed or skipped, including Aerodrome on Base fork 51,200,183. Recovery boundary checks cover 599/600/900 seconds, the easiest-target cap, persistence after a valid recovered proof, and reset of the eight-mint window. NFT runtime: 8,718 bytes. Production frontend build passes; it reads effectiveTarget and restarts active workers when that target changes. End-to-end external-wallet recovery testing in Sepolia remains outstanding.
+
+Updated seeded simulation: stable-rate median completion 12.54–12.66 days. A 1,000-fold hashrate drop yields median 12.64 days and worst observed global gap 0.932 hours across 100 runs, versus 161 hours in the previous no-recovery model. These results are not guaranteed bounds.
+
+Strategic withholding remains possible: waiting ten minutes halves required expected work; waiting fifteen minutes quarters it, provided nobody else mints. This can save computation for a dominant miner while sacrificing time, and a competing mint resets the idle clock. The random-search simulation does not validate adversarial strategy resistance. Do not claim farm protection or equal outcomes. Difficulty remains flagged for review before mainnet; recovery does not guarantee demand or individual mint times.
+
+The older no-recovery finding below is historical and is superseded by this implementation and its stated limits. No public chain deployment has occurred.
+
 ## Latest parameter test run
 
 17 tests passed (16 protocol tests including 256 fuzz cases, plus real Aerodrome integration on Base fork block 51,199,697). The reward now decays 5% per 512 lifetime mints, with equal rewards across rarity tiers. All epoch boundaries through epoch 32 are checked. Fast-window adjustment doubles difficulty; the target window is now 480 seconds for eight mints. The old 24-bit ceiling is removed. Earlier run details below are historical.

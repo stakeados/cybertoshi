@@ -278,12 +278,13 @@ async function checkJob() {
   const captured = job;
   checking = true;
   try {
-    const [previous, height] = await Promise.all([
+    const [previous, height, target] = await Promise.all([
       read("nft", "prevWork"),
       client.getBlockNumber({ cacheTime: 0 }),
+      read("nft", "effectiveTarget"),
     ]);
     if (job !== captured) return;
-    if (previous !== job.previous || height - BigInt(job.anchorBlock) > 110n) {
+    if (previous !== job.previous || height - BigInt(job.anchorBlock) > 110n || (workers.length > 0 && target !== BigInt(job.target))) {
       const active = workers.length > 0;
       stop();
       say(
@@ -316,7 +317,7 @@ async function start() {
   const anchor = await client.getBlock({ blockNumber: block.number - 1n });
   const [previous, target, minted, price] = await Promise.all([
     read("nft", "prevWork", [], { blockNumber: block.number }),
-    read("nft", "currentTarget", [], { blockNumber: block.number }),
+    read("nft", "effectiveTarget", [], { blockNumber: block.number }),
     read("nft", "totalMinted", [], { blockNumber: block.number }),
     read("nft", "mintPrice", [], { blockNumber: block.number }),
   ]);
@@ -521,3 +522,4 @@ async function init() {
   await refresh();
 }
 init().catch(fail);
+

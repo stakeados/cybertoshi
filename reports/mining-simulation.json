@@ -1,45 +1,45 @@
 {
-  "assumptions": "Seeded Monte Carlo: exponential independent hash search; constant effective total hashrate except named shock. No network latency, stale work, wallet delay, fees, demand or transaction contention. Recovery only after 8 accepted mints. Not a forecast.",
+  "assumptions": "Seeded Monte Carlo: exponential independent hash search; constant effective total hashrate except named shock. No network latency, stale work, wallet delay, fees, demand or transaction contention. Idle recovery: first target doubling at 600 seconds, then every 300 seconds; recovered mint resets the eight-mint window. Not a forecast.",
   "results": [
     {
       "scenario": "100 kH/s",
       "runs": 100,
-      "medianDays": 12.69581135082379,
-      "p05Days": 12.607401527655295,
-      "p95Days": 12.797688990612539,
-      "worstGlobalGapHours": 0.48317506889567213
+      "medianDays": 12.655647481844962,
+      "p05Days": 12.586277286691901,
+      "p95Days": 12.761415394473207,
+      "worstGlobalGapHours": 0.2742645363678395
     },
     {
       "scenario": "1 MH/s",
       "runs": 100,
-      "medianDays": 12.67404682227784,
-      "p05Days": 12.600662013852759,
-      "p95Days": 12.775962169917381,
-      "worstGlobalGapHours": 0.4717549723476956
+      "medianDays": 12.634857614166416,
+      "p05Days": 12.55758301788695,
+      "p95Days": 12.716992125748034,
+      "worstGlobalGapHours": 0.2791385420717745
     },
     {
       "scenario": "100 MH/s",
       "runs": 100,
-      "medianDays": 12.635575782502315,
-      "p05Days": 12.532379259639917,
-      "p95Days": 12.744373420197864,
-      "worstGlobalGapHours": 0.4518977109306656
+      "medianDays": 12.59097681347183,
+      "p05Days": 12.532856079143414,
+      "p95Days": 12.696102677505733,
+      "worstGlobalGapHours": 0.28412541887897846
     },
     {
       "scenario": "10 GH/s",
       "runs": 100,
-      "medianDays": 12.592616536781872,
-      "p05Days": 12.510013606562781,
-      "p95Days": 12.703295931432065,
-      "worstGlobalGapHours": 0.429476065489338
+      "medianDays": 12.543594374780492,
+      "p05Days": 12.478977238840816,
+      "p95Days": 12.629570716014817,
+      "worstGlobalGapHours": 0.27925516483362445
     },
     {
       "scenario": "100 MH/s then 100 kH/s after mint 8192",
       "runs": 100,
-      "medianDays": 23.50463891280992,
-      "p05Days": 18.540169235601095,
-      "p95Days": 31.740671459072047,
-      "worstGlobalGapHours": 161.42349484781718
+      "medianDays": 12.644136589807399,
+      "p05Days": 12.553585503185873,
+      "p95Days": 12.735599580052925,
+      "worstGlobalGapHours": 0.9317544985120182
     }
   ],
   "rewardAtFinalEpochBCAT": 193.71148445850113,

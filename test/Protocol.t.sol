@@ -29,6 +29,7 @@ contract Harness is CyberToshiNFT {
         totalMinted = count;
     }
     function setTarget(uint256 target) external { currentTarget = target; }
+    function setWindow(uint256 count) external { windowMints = count; }
 }
 
 contract RejectNFT {}
@@ -265,11 +266,11 @@ contract ProtocolTest {
     }
 
     function testFastMintWindowDoublesDifficulty() public {
-        nft.setMintCount(7);
+        nft.setMintCount(7); nft.setWindow(7);
         vm.warp(10480);
         mint(alice);
         require(nft.currentTarget() == nft.EASIEST_TARGET());
-        nft.setMintCount(15);
+        nft.setMintCount(15); nft.setWindow(7);
 
 
         vm.warp(10481);
@@ -283,6 +284,25 @@ contract ProtocolTest {
         vm.prank(alice);
         nft.mine{value: 0.001 ether}(nonce,99,previous);
         require(nft.currentTarget() == nft.EASIEST_TARGET()/2);
+    }
+
+    function testIdleRecoveryBoundariesAndPersistence() public {
+        uint256 target = nft.EASIEST_TARGET()/4;
+        nft.setTarget(target);
+        vm.warp(10599);
+        require(nft.effectiveTarget() == target);
+        vm.warp(10600);
+        require(nft.effectiveTarget() == target*2);
+        vm.warp(10900);
+        require(nft.effectiveTarget() == nft.EASIEST_TARGET());
+        bytes32 previous = nft.prevWork(); uint256 nonce;
+        while(uint256(nft.workHash(alice,nonce,previous,bytes32(uint256(1234)))) >= nft.effectiveTarget()) nonce++;
+        vm.prank(alice);
+        nft.mine{value:0.001 ether}(nonce,99,previous);
+        require(nft.currentTarget() == nft.EASIEST_TARGET());
+        require(nft.lastMintAt()==10900 && nft.windowMints()==0 && nft.windowStart()==10900);
+        vm.warp(1_000_000);
+        require(nft.effectiveTarget()==nft.EASIEST_TARGET());
     }
 
     function testRewardAcrossAllEpochs() public {
@@ -343,6 +363,7 @@ contract ProtocolTest {
         require(sum <= count * 0.0008 ether && address(nft).balance == count * 0.0008 ether - sum);
     }
 }
+
 
 
 

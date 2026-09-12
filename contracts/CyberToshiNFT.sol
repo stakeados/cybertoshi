@@ -30,6 +30,8 @@ contract CyberToshiNFT is ERC721Enumerable, ReentrancyGuard {
     uint256 public accPerCat;
     uint256 public pendingRent;
     uint256 public windowStart;
+    uint256 public lastMintAt;
+    uint256 public windowMints;
     mapping(uint256 => uint256) public claimedAcc;
     mapping(uint256 => bytes32) public seedOf;
     event Mined(uint256 indexed tokenId, address indexed miner, bytes32 seed);
@@ -47,6 +49,7 @@ contract CyberToshiNFT is ERC721Enumerable, ReentrancyGuard {
         bcatToken.setVault(address(buybackRouter));
         prevWork = keccak256(abi.encode(block.chainid, address(this), blockhash(block.number - 1)));
         windowStart = block.timestamp;
+        lastMintAt = block.timestamp;
     }
 
     function mintPrice() public view returns (uint256) {
@@ -67,6 +70,16 @@ contract CyberToshiNFT is ERC721Enumerable, ReentrancyGuard {
         return keccak256(abi.encodePacked(block.chainid, address(this), miner, nonce, previous, anchor));
     }
 
+    /// @notice Five-minute grace, then target doubles per completed five-minute recovery step.
+    /// First reduction is at ten minutes. No transaction is needed to activate it.
+    function effectiveTarget() public view returns (uint256) {
+        uint256 idle = block.timestamp - lastMintAt;
+        if (idle < 10 minutes) return currentTarget;
+        uint256 steps = (idle - 5 minutes) / 5 minutes;
+        if (steps >= 256 || currentTarget >= (EASIEST_TARGET >> steps)) return EASIEST_TARGET;
+        return currentTarget << steps;
+    }
+
     function mine(uint256 nonce, uint256 anchorBlock, bytes32 expectedPrevWork)
         external
         payable
@@ -81,7 +94,8 @@ contract CyberToshiNFT is ERC721Enumerable, ReentrancyGuard {
         ) revert InvalidWork();
         bytes32 anchor = blockhash(anchorBlock);
         bytes32 work = workHash(msg.sender, nonce, prevWork, anchor);
-        if (anchor == bytes32(0) || uint256(work) >= currentTarget) revert InvalidWork();
+        uint256 target = effectiveTarget();
+        if (anchor == bytes32(0) || uint256(work) >= target) revert InvalidWork();
         uint256 alive = totalSupply();
         uint256 rent = price * 80 / 100;
         pendingRent += rent;
@@ -94,7 +108,11 @@ contract CyberToshiNFT is ERC721Enumerable, ReentrancyGuard {
         // Cosmetic traits are grindable proof-of-work art, not a random-value lottery.
         seedOf[id] = keccak256(abi.encode(work, id));
         prevWork = work;
-        if (id % 8 == 0) {
+        if (target > currentTarget) {
+            currentTarget = target;
+            windowStart = block.timestamp;
+            windowMints = 0;
+        } else if (++windowMints == 8) {
             uint256 elapsed = block.timestamp - windowStart;
             elapsed = elapsed < 240 ? 240 : elapsed > 960 ? 960 : elapsed;
             currentTarget = Math.mulDiv(currentTarget, elapsed, 480);
@@ -102,7 +120,9 @@ contract CyberToshiNFT is ERC721Enumerable, ReentrancyGuard {
                 ? HARDEST_TARGET
                 : currentTarget > EASIEST_TARGET ? EASIEST_TARGET : currentTarget;
             windowStart = block.timestamp;
+            windowMints = 0;
         }
+        lastMintAt = block.timestamp;
         (bool sent,) = address(buybackRouter).call{value: price - rent}("");
         require(sent, "Fee transfer failed");
         _safeMint(msg.sender, id);
