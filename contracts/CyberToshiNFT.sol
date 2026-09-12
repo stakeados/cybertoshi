@@ -17,6 +17,7 @@ contract CyberToshiNFT is ERC721Enumerable, ReentrancyGuard {
     uint256 public constant PRICE_STEP = 0.0001 ether;
     uint256 public constant MAX_SUPPLY = 16384;
     uint256 public constant EPOCH_SIZE = 512;
+    uint256 public constant MIN_MINT_INTERVAL = 60;
     uint256 public constant SCALE = 1e18;
     uint256 public constant EASIEST_TARGET = type(uint256).max >> 16;
     uint256 public constant HARDEST_TARGET = 1;
@@ -40,6 +41,7 @@ contract CyberToshiNFT is ERC721Enumerable, ReentrancyGuard {
     error InvalidWork();
     error InvalidPayment();
     error Unauthorized();
+    error MintTooSoon(uint256 availableAt);
 
     constructor(address art, address dex, address weth, address factory) ERC721("CyberToshi", "CTOSHI") {
         require(art.code.length > 0, "Invalid renderer");
@@ -86,6 +88,8 @@ contract CyberToshiNFT is ERC721Enumerable, ReentrancyGuard {
         nonReentrant
         returns (uint256 id)
     {
+        if (totalMinted != 0 && block.timestamp < lastMintAt + MIN_MINT_INTERVAL)
+            revert MintTooSoon(lastMintAt + MIN_MINT_INTERVAL);
         uint256 price = mintPrice();
         if (msg.value != price) revert InvalidPayment();
         if (

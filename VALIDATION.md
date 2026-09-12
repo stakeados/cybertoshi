@@ -1,5 +1,11 @@
 # Verification record — 12 September 2026
 
+## Global mint interval — latest run
+
+19 tests passed, zero failed or skipped, including Aerodrome on Base fork 51,206,150. The contract enforces a minimum of 60 seconds between accepted mints after the first. Tests reject same-timestamp and 59-second attempts across wallets, including after burning all living cats, and accept at exactly 60 seconds.
+
+The exact earliest first-to-last interval is (16,384 - 1) * 60 = 982,980 seconds (11 days, 9 hours, 3 minutes), measured in chain timestamps. This is an issuance-rate bound, not a guarantee of individual access or completion. NFT runtime is 8,861 bytes. Earlier simulation outputs predate the mandatory interval and must not be used as forecasts for this version. Sepolia deployment and wallet testing remain outstanding; no signer is configured in the current execution environment.
+
 ## Idle recovery update — latest
 
 18 tests passed, zero failed or skipped, including Aerodrome on Base fork 51,200,183. Recovery boundary checks cover 599/600/900 seconds, the easiest-target cap, persistence after a valid recovered proof, and reset of the eight-mint window. NFT runtime: 8,718 bytes. Production frontend build passes; it reads effectiveTarget and restarts active workers when that target changes. End-to-end external-wallet recovery testing in Sepolia remains outstanding.
@@ -53,5 +59,6 @@ The final source is verified locally, not deployed to a public network. The orig
 This is not an independent security audit. The fork test covers the direct volatile Aerodrome route and basic oracle lifecycle, not every market manipulation or MEV scenario. Sustained manipulation of shallow liquidity remains possible. Browser checks use a local unlocked account, not every external wallet or mobile webview. WebGPU is experimental and has not been benchmarked across devices. Gas sponsorship, passkeys and public hosting are not implemented or claimed.
 
 Before public participation, complete Sepolia wallet testing, an independent review and explorer verification. Sepolia uses test ETH and the labelled TestDex; Aerodrome compatibility is tested on the Base fork. No real ETH has been spent in these checks.
+
 
 

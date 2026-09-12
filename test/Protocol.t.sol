@@ -61,6 +61,7 @@ contract ProtocolTest {
     }
 
     function mint(address who) internal returns (uint256) {
+        if(nft.totalMinted()!=0 && block.timestamp<nft.lastMintAt()+60) vm.warp(nft.lastMintAt()+60);
         nft.easy();
         bytes32 previous = nft.prevWork();
         vm.prank(who);
@@ -238,6 +239,7 @@ contract ProtocolTest {
         require(nft.mintPrice() == 0.001 ether);
         mint(bob);
         require(nft.totalMinted() == 512 && nft.mintPrice() == 0.0011 ether);
+        vm.warp(nft.lastMintAt()+60);
         bytes32 previous = nft.prevWork();
         vm.expectRevert();
         vm.prank(bob);
@@ -252,6 +254,7 @@ contract ProtocolTest {
         nft.mine{value: 0.0011 ether}(0, 99, previous);
         require(nft.claimableRent(1) - rentBefore == 0.00044 ether);
         require(address(vault).balance - vaultBefore == 0.00022 ether);
+        vm.warp(nft.lastMintAt()+60);
         nft.setMintCount(16383);
         require(nft.mintPrice() == 0.0041 ether);
         nft.easy();
@@ -273,7 +276,7 @@ contract ProtocolTest {
         nft.setMintCount(15); nft.setWindow(7);
 
 
-        vm.warp(10481);
+        vm.warp(10540);
         bytes32 previous = nft.prevWork();
 
 
@@ -303,6 +306,29 @@ contract ProtocolTest {
         require(nft.lastMintAt()==10900 && nft.windowMints()==0 && nft.windowStart()==10900);
         vm.warp(1_000_000);
         require(nft.effectiveTarget()==nft.EASIEST_TARGET());
+    }
+
+    function testGlobalIntervalAcrossWalletsAndAfterBurn() public {
+        mint(alice);
+        bytes32 previous = nft.prevWork();
+        uint256 at = nft.lastMintAt();
+        nft.easy();
+        vm.expectRevert(); vm.prank(bob);
+        nft.mine{value:0.001 ether}(0,99,previous);
+        vm.warp(at+59);
+        vm.expectRevert(); vm.prank(alice);
+        nft.mine{value:0.001 ether}(0,99,previous);
+        bootstrap();
+        vm.prank(alice); nft.burn(1);
+        require(nft.totalSupply()==0);
+        vm.expectRevert(); vm.prank(bob);
+        nft.mine{value:0.001 ether}(0,99,previous);
+        vm.warp(at+60);
+        vm.prank(bob); nft.mine{value:0.001 ether}(0,99,previous);
+        require(nft.totalMinted()==2 && nft.lastMintAt()==at+60);
+        previous=nft.prevWork();
+        vm.expectRevert(); vm.prank(alice);
+        nft.mine{value:0.001 ether}(0,99,previous);
     }
 
     function testRewardAcrossAllEpochs() public {
@@ -363,6 +389,7 @@ contract ProtocolTest {
         require(sum <= count * 0.0008 ether && address(nft).balance == count * 0.0008 ether - sum);
     }
 }
+
 
 
 

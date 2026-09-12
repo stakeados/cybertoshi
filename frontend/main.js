@@ -210,6 +210,11 @@ async function send(kind, fn, args = [], value) {
     $("buyback").disabled =
       true;
   try {
+    if (kind === 'nft' && fn === 'mine') {
+      const [last, minted, block] = await Promise.all([read('nft','lastMintAt'), read('nft','totalMinted'), client.getBlock()]);
+      if (minted > 0n && block.timestamp < last + 60n)
+        throw Error(`Global mint cooldown: wait approximately ${last + 60n - block.timestamp} seconds. No transaction sent. Mine a fresh proof if the challenge changes.`);
+    }
     say("Checking transaction…");
     const { request } = await client.simulateContract({
       address: cfg[kind === "nft" ? "collection" : kind],
