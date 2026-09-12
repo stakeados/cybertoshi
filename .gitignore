@@ -1,0 +1,12 @@
+node_modules/
+out/
+cache/
+dist/
+.env
+.env.*
+!.env.example
+deployments/*
+!deployments/.gitkeep
+.sites-runtime/
+.playwright-cli/
+output/

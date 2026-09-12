@@ -1,0 +1,10 @@
+.git
+node_modules
+dist
+out
+cache
+output
+.playwright-cli
+.env
+.env.*
+deployments

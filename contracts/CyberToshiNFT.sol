@@ -1,0 +1,151 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.30;
+import {ERC721Enumerable} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
+import {BasedCatToken} from "./BasedCatToken.sol";
+import {ToshiBuybackRouter} from "./ToshiBuybackRouter.sol";
+
+interface IRenderer {
+    function renderTokenURI(uint256, bytes32) external view returns (string memory);
+}
+
+/// @notice Experimental CPU proof-of-work collectibles. No creator allocation or admin.
+contract CyberToshiNFT is ERC721Enumerable, ReentrancyGuard {
+    uint256 public constant MINT_PRICE = 0.001 ether;
+    uint256 public constant PRICE_STEP = 0.0001 ether;
+    uint256 public constant MAX_SUPPLY = 16384;
+    uint256 public constant EPOCH_SIZE = 512;
+    uint256 public constant SCALE = 1e18;
+    uint256 public constant EASIEST_TARGET = type(uint256).max >> 16;
+    uint256 public constant HARDEST_TARGET = type(uint256).max >> 24;
+    BasedCatToken public immutable bcatToken;
+    ToshiBuybackRouter public immutable buybackRouter;
+    IRenderer public immutable renderer;
+    uint256 public currentTarget = EASIEST_TARGET;
+    bytes32 public prevWork;
+    uint256 public totalMinted;
+    uint256 public burnedCount;
+    uint256 public accPerCat;
+    uint256 public pendingRent;
+    uint256 public windowStart;
+    mapping(uint256 => uint256) public claimedAcc;
+    mapping(uint256 => bytes32) public seedOf;
+    event Mined(uint256 indexed tokenId, address indexed miner, bytes32 seed);
+    event RentClaimed(uint256 indexed tokenId, address indexed recipient, uint256 amount);
+    event Burned(uint256 indexed tokenId, uint256 reward);
+    error InvalidWork();
+    error InvalidPayment();
+    error Unauthorized();
+
+    constructor(address art, address dex, address weth, address factory) ERC721("CyberToshi", "CTOSHI") {
+        require(art.code.length > 0, "Invalid renderer");
+        renderer = IRenderer(art);
+        bcatToken = new BasedCatToken();
+        buybackRouter = new ToshiBuybackRouter(bcatToken, dex, weth, factory);
+        bcatToken.setVault(address(buybackRouter));
+        prevWork = keccak256(abi.encode(block.chainid, address(this), blockhash(block.number - 1)));
+        windowStart = block.timestamp;
+    }
+
+    function mintPrice() public view returns (uint256) {
+        return MINT_PRICE + PRICE_STEP * (totalMinted < MAX_SUPPLY ? currentEpoch() : (MAX_SUPPLY - 1) / EPOCH_SIZE);
+    }
+
+    function currentEpoch() public view returns (uint256) {
+        return totalMinted / EPOCH_SIZE;
+    }
+
+    function burnReward() public view returns (uint256) {
+        return uint256(1000 ether) >> currentEpoch();
+    }
+
+    function workHash(address miner, uint256 nonce, bytes32 previous, bytes32 anchor) public view returns (bytes32) {
+        return keccak256(abi.encodePacked(block.chainid, address(this), miner, nonce, previous, anchor));
+    }
+
+    function mine(uint256 nonce, uint256 anchorBlock, bytes32 expectedPrevWork)
+        external
+        payable
+        nonReentrant
+        returns (uint256 id)
+    {
+        uint256 price = mintPrice();
+        if (msg.value != price) revert InvalidPayment();
+        if (
+            totalMinted >= MAX_SUPPLY || expectedPrevWork != prevWork || anchorBlock >= block.number
+                || block.number - anchorBlock > 128
+        ) revert InvalidWork();
+        bytes32 anchor = blockhash(anchorBlock);
+        bytes32 work = workHash(msg.sender, nonce, prevWork, anchor);
+        if (anchor == bytes32(0) || uint256(work) >= currentTarget) revert InvalidWork();
+        uint256 alive = totalSupply();
+        uint256 rent = price * 80 / 100;
+        pendingRent += rent;
+        if (alive != 0) {
+            accPerCat += pendingRent * SCALE / alive;
+            pendingRent = 0; // Sub-wei rounding dust remains unallocated, never withdrawn.
+        }
+        id = ++totalMinted;
+        claimedAcc[id] = accPerCat;
+        // Cosmetic traits are grindable proof-of-work art, not a random-value lottery.
+        seedOf[id] = keccak256(abi.encode(work, id));
+        prevWork = work;
+        if (id % 8 == 0) {
+            uint256 elapsed = block.timestamp - windowStart;
+            elapsed = elapsed < 120 ? 120 : elapsed > 480 ? 480 : elapsed;
+            currentTarget = Math.mulDiv(currentTarget, elapsed, 240);
+            currentTarget = currentTarget < HARDEST_TARGET
+                ? HARDEST_TARGET
+                : currentTarget > EASIEST_TARGET ? EASIEST_TARGET : currentTarget;
+            windowStart = block.timestamp;
+        }
+        (bool sent,) = address(buybackRouter).call{value: price - rent}("");
+        require(sent, "Fee transfer failed");
+        _safeMint(msg.sender, id);
+        emit Mined(id, msg.sender, seedOf[id]);
+    }
+
+    function claimableRent(uint256 id) public view returns (uint256) {
+        if (_ownerOf(id) == address(0)) return 0;
+        return (accPerCat - claimedAcc[id]) / SCALE;
+    }
+
+    function claimRent(uint256 id) external nonReentrant {
+        _claim(id, msg.sender);
+    }
+
+    function _claim(uint256 id, address recipient) internal {
+        if (ownerOf(id) != recipient) revert Unauthorized();
+        uint256 amount = claimableRent(id);
+        claimedAcc[id] += amount * SCALE;
+        if (amount != 0) {
+            (bool ok,) = recipient.call{value: amount}("");
+            require(ok, "Rent transfer failed");
+        }
+        emit RentClaimed(id, recipient, amount);
+    }
+
+    function burn(uint256 id) external nonReentrant {
+        if (ownerOf(id) != msg.sender) revert Unauthorized();
+        require(buybackRouter.bootstrapped(), "Community pool not launched");
+        uint256 rent = claimableRent(id);
+        uint256 reward = burnReward();
+        _burn(id);
+        delete claimedAcc[id];
+        burnedCount++;
+        bcatToken.mintReward(msg.sender, reward);
+        if (rent != 0) {
+            (bool ok,) = msg.sender.call{value: rent}("");
+            require(ok, "Rent transfer failed");
+        }
+        emit Burned(id, reward);
+    }
+
+    function tokenURI(uint256 id) public view override returns (string memory) {
+        _requireOwned(id);
+        return renderer.renderTokenURI(id, seedOf[id]);
+    }
+}
+
