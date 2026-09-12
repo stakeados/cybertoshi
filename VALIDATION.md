@@ -6,7 +6,7 @@
 
 Removed the separate `claimRent` entrypoint and frontend claim button. ETH accumulates with the NFT and is redeemable only when its owner burns it for ETH plus BCAT, after pool launch. Tests cover the removed selector rejecting calls, transfer of accrued ETH with ownership, owner-only redemption, no double burn, and atomic rollback of NFT destruction and token issuance if the ETH recipient rejects payment.
 
-The earlier collection at `0x8f993333ecb294d1508c5627cb9d45d6583a4f0e` was deployed on Base Sepolia and its first mint was verified on-chain. It allows separate ETH claims and is now superseded for launch purposes. The corrected collection has NOT yet been deployed or tested with an external wallet. The local deployment tool reuses the verified renderer and TestDex, requires a new collection signature, and preserves the old manifest. Historical results below refer to previous versions.
+The earlier collection at `0x8f993333ecb294d1508c5627cb9d45d6583a4f0e` allows separate ETH claims and is superseded for launch purposes. The corrected collection at `0x51bc317ba8c99282816199e33391a6e786807871` is deployed on Base Sepolia. The user minted #1 and #2 through the browser; the separate test wallet mined #3 and #4. Live state checks validate accrued ETH and early/unauthorized rejection paths. Pool, redemption and buyback checks are still pending additional test funding. See [SEPOLIA-RESULTS.md](SEPOLIA-RESULTS.md) for receipts and exact scope. The old deployment manifest is preserved. Historical results below refer to previous versions.
 
 ## Global mint interval — latest run
 
