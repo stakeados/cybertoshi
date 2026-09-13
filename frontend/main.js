@@ -12,6 +12,7 @@ import {
 import { base, baseSepolia } from "viem/chains";
 import abis from "./abis.json";
 import { makeInput, hashNonce } from './pow.js';
+import { builderDataSuffix } from './builder-code.js';
 const $ = (id) => document.getElementById(id);
 let cfg,
   chain,
@@ -229,6 +230,7 @@ async function send(kind, fn, args = [], value) {
       args,
       value,
       account,
+      dataSuffix: builderDataSuffix(chain.id),
     });
     say(chain.id === 31337 ? "Submitting a transaction with the local test wallet." : "Approve the transaction in your wallet.");
     const hash = await wallet.writeContract(request);
@@ -253,7 +255,7 @@ async function connect() {
       "No browser wallet found. Open this page in a wallet browser or install a wallet extension.",
     );
   else provider = window.ethereum;
-  wallet = createWalletClient({ chain, transport: custom(provider) });
+  wallet = createWalletClient({ chain, transport: custom(provider), dataSuffix: builderDataSuffix(chain.id) });
   const accounts = await wallet.requestAddresses();
   account = accounts[0];
   if ((await wallet.getChainId()) !== chain.id) {
