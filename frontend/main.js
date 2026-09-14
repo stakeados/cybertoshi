@@ -13,6 +13,7 @@ import { base, baseSepolia } from "viem/chains";
 import abis from "./abis.json";
 import { makeInput, hashNonce } from './pow.js';
 import { builderDataSuffix } from './builder-code.js';
+import { loadMarket, tradeUrl } from './market.js';
 const $ = (id) => document.getElementById(id);
 let cfg,
   chain,
@@ -51,6 +52,51 @@ const read = (kind, fn, args = [], extra = {}) =>
     args,
     ...extra,
   });
+let marketLoading = false;
+const preciseAmount = (v) => Number(formatEther(v)).toLocaleString('en-US', {maximumSignificantDigits:8});
+async function refreshMarket() {
+  if (!ready || marketLoading) return;
+  marketLoading = true;
+  $('market-refresh').disabled = true;
+  try {
+    const m = await loadMarket(client,cfg,abis);
+    $('bcat-supply').textContent = Number(formatEther(m.supply)).toLocaleString('en-US',{maximumFractionDigits:2});
+    $('cats-burned').textContent = m.burnedCats.toString();
+    $('fee-burned').textContent = preciseAmount(m.feeBurned) + ' BCAT';
+    $('buyback-burned').textContent = preciseAmount(m.totalBurned-m.feeBurned) + ' BCAT';
+    $('fee-eth').textContent = preciseAmount(m.feeEth) + ' ETH';
+    $('burned').textContent = preciseAmount(m.totalBurned);
+    const liveMarket = m.launched && chain.id === 8453 && !cfg.testDex;
+    for (const id of ['buy-token','sell-token','view-pool','view-token']) $(id).hidden = !liveMarket;
+    if (m.launched) {
+      $('bcat-price').textContent = m.price === null ? 'Unavailable' : m.price.toLocaleString('en-US',{maximumSignificantDigits:4});
+      $('pool-eth').textContent = preciseAmount(m.eth) + ' WETH';
+      $('pool-bcat').textContent = amount(m.bcat) + ' BCAT';
+      $('lp-note').textContent = m.totalLp > 0n
+        ? `Community vault holds ${m.lockedLp<m.totalLp && m.lockedLp*10000n/m.totalLp===9999n?'>99.99':(Number(m.lockedLp*10000n/m.totalLp)/100).toFixed(2)}% of pool LP tokens. Its LP position has no withdrawal function.`
+        : 'No LP supply available.';
+      if (liveMarket) {
+        $('buy-token').href = tradeUrl(cfg.token,m.weth);
+        $('sell-token').href = tradeUrl(cfg.token,m.weth,true);
+        $('view-pool').href = `https://basescan.org/address/${m.pool}`;
+        $('view-token').href = `https://basescan.org/token/${cfg.token}`;
+      }
+    } else {
+      $('bcat-price').textContent = 'Not launched';
+      $('pool-eth').textContent = 'Not launched';
+      $('pool-bcat').textContent = 'Trading opens after the community pool launches.';
+      $('lp-note').textContent = '';
+    }
+    $('market-status').textContent = `${m.launched?'Pool live':'Pool not launched'} · Block ${m.blockNumber.toLocaleString('en-US')} · Updated ${new Date().toLocaleTimeString()}${cfg.testDex?' · Test DEX':''}`;
+  } catch {
+    $('market-status').textContent = 'Market update unavailable. Any figures shown are from the previous update; retry to refresh.';
+    for (const id of ['buy-token','sell-token','view-pool','view-token']) $(id).hidden = true;
+  } finally {
+    marketLoading = false;
+    $('market-refresh').disabled = false;
+  }
+}
+$('market-refresh').onclick = refreshMarket;
 function buttons() {
   const allowed = ready && !!account && !busy;
   $("mine").disabled = !allowed || !mintOpen || starting || workers.length > 0 || !!solution;
@@ -131,6 +177,7 @@ async function refresh() {
     }
   }
   buttons();
+  await refreshMarket();
 }
 function decode(uri) {
   if (!uri.startsWith("data:application/json;base64,"))
@@ -540,4 +587,5 @@ async function init() {
 }
 init().catch(fail);
 setInterval(() => { if (ready && !mintOpen) refreshOpening().catch(fail); }, 10000);
+setInterval(() => { if (ready && !document.hidden) refreshMarket(); }, 60000);
 

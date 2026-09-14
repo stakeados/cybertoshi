@@ -110,6 +110,32 @@
           </div>
         </div>
       </section>
+      <section class="community market" aria-labelledby="market-title">
+        <div class="section-title">
+          <div><p class="eyebrow">BCAT / WETH · AERODROME</p><h2 id="market-title">The community market</h2></div>
+          <button id="market-refresh" class="secondary">Refresh market</button>
+        </div>
+        <p id="market-status" class="fine" role="status">Loading pool data…</p>
+        <div class="stats four">
+          <div><span>BCAT spot price</span><strong id="bcat-price">—</strong><small>ETH per BCAT</small></div>
+          <div><span>Pool reserves</span><strong id="pool-eth">—</strong><small id="pool-bcat">—</small></div>
+          <div><span>BCAT supply now</span><strong id="bcat-supply">—</strong><small>Includes pool reserve and redeemed tokens</small></div>
+          <div><span>NFTs burned</span><strong id="cats-burned">—</strong><small>Burning a cat issues BCAT</small></div>
+        </div>
+        <div class="market-burns">
+          <div><span>BCAT burned from pool fees</span><strong id="fee-burned">—</strong></div>
+          <div><span>BCAT burned through buybacks</span><strong id="buyback-burned">—</strong></div>
+          <div><span>ETH collected from pool fees</span><strong id="fee-eth">—</strong></div>
+        </div>
+        <p id="lp-note" class="fine"></p>
+        <div class="actions market-links">
+          <a id="buy-token" class="button-link" hidden target="_blank" rel="noopener noreferrer">Buy BCAT ↗</a>
+          <a id="sell-token" class="button-link secondary" hidden target="_blank" rel="noopener noreferrer">Sell BCAT ↗</a>
+          <a id="view-pool" hidden target="_blank" rel="noopener noreferrer">View pool on Basescan ↗</a>
+          <a id="view-token" hidden target="_blank" rel="noopener noreferrer">BCAT contract ↗</a>
+        </div>
+        <p class="fine">The spot price is calculated from this pool's reserves, not a trade quote. Small pools can have substantial price impact. Buy and sell links open Aerodrome, where you review the quote and sign in your wallet.</p>
+      </section>
       <section class="community">
         <div class="section-title">
           <h2>Built by its miners</h2>

@@ -1,5 +1,9 @@
 # CyberToshi — Base mainnet deployment
 
+Update, 14 September: the community pool, three NFT redemptions, buying/selling and
+fee-funded BCAT burns are now verified on mainnet. See [live activity results](MAINNET-ACTIVITY.md).
+The deployment-time scope below is retained as a historical record.
+
 Network: **Base 8453**. Opening: **13 September 2026, 01:00 UTC / 03:00 CEST Madrid**.
 The opening timestamp is immutable: **1789261200**.
 

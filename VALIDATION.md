@@ -106,3 +106,8 @@ Before public participation, complete Sepolia wallet testing, an independent rev
 
 
 
+# Live activity update — 14 September 2026
+
+Pool launch, three NFT burns, swaps and direct fee burns were verified from Base
+mainnet receipts, events and state. See [MAINNET-ACTIVITY.md](MAINNET-ACTIVITY.md).
+Mainnet ETH-funded buybacks and independent security review are not marked complete.

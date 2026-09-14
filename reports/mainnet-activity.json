@@ -1,0 +1,204 @@
+{
+  "verifiedAt": "2026-09-14T00:25:19.886Z",
+  "chainId": 8453,
+  "contracts": {
+    "chainId": 8453,
+    "collection": "0x333fef2bdbfdc2858a27c23594747e7e2669df42",
+    "renderer": "0xbAbc7A964e7a744DcF676636B3c23089389c9E0C",
+    "token": "0xbc384D49529AEb3B20B270586457F9Ba57e514e3",
+    "vault": "0x69a16aD3eaF02b4A39342CfD6609F962636E619d",
+    "testDex": false,
+    "rpcUrl": "https://base-rpc.publicnode.com"
+  },
+  "state": {
+    "blockNumber": "51278082",
+    "launched": true,
+    "pool": "0xF4bdcd404761Dc2B36B443cc0A5b5a71d47Da721",
+    "weth": "0x4200000000000000000000000000000000000006",
+    "supply": "1002989016731835955260682",
+    "feeBurned": "10983268164044739318",
+    "totalBurned": "10983268164044739318",
+    "feeEth": "5999999999972",
+    "burnedCats": "3",
+    "bcat": "912989016731835955260526",
+    "eth": "21906068565416730",
+    "price": 2.3993791999636953e-8,
+    "lockedLp": "141421356237309503880",
+    "totalLp": "141421356237309504880"
+  },
+  "events": [
+    {
+      "address": "0x69a16ad3eaf02b4a39342cfd6609f962636e619d",
+      "hash": "0x579c65a0f36a8564d7947ffbe9d9c8f6850ebf763ee80e9874c63686538aaa51",
+      "block": "51277672",
+      "event": "Bootstrapped",
+      "args": {
+        "pool": "0xF4bdcd404761Dc2B36B443cc0A5b5a71d47Da721",
+        "ethAmount": "20000000000000000",
+        "tokenAmount": "1000000000000000000000000",
+        "liquidity": "141421356237309503880"
+      }
+    },
+    {
+      "address": "0x333fef2bdbfdc2858a27c23594747e7e2669df42",
+      "hash": "0x0a42d05475f48d19ffefb2075c2e07c035038c23395c774aa53083efb7f1087c",
+      "block": "51277713",
+      "event": "RentRedeemed",
+      "args": {
+        "tokenId": "10",
+        "recipient": "0x12B967b8b9eddB5185922375F1f7dC1F3791d9Dc",
+        "amount": "0"
+      }
+    },
+    {
+      "address": "0x333fef2bdbfdc2858a27c23594747e7e2669df42",
+      "hash": "0x0a42d05475f48d19ffefb2075c2e07c035038c23395c774aa53083efb7f1087c",
+      "block": "51277713",
+      "event": "Burned",
+      "args": {
+        "tokenId": "10",
+        "reward": "1000000000000000000000"
+      }
+    },
+    {
+      "address": "0x333fef2bdbfdc2858a27c23594747e7e2669df42",
+      "hash": "0x8f42d20e5921112fe93533cfd8ce4c6d6e9539a0a5e80545a17581c68b313e83",
+      "block": "51277748",
+      "event": "RentRedeemed",
+      "args": {
+        "tokenId": "9",
+        "recipient": "0x12B967b8b9eddB5185922375F1f7dC1F3791d9Dc",
+        "amount": "88888888888888"
+      }
+    },
+    {
+      "address": "0x333fef2bdbfdc2858a27c23594747e7e2669df42",
+      "hash": "0x8f42d20e5921112fe93533cfd8ce4c6d6e9539a0a5e80545a17581c68b313e83",
+      "block": "51277748",
+      "event": "Burned",
+      "args": {
+        "tokenId": "9",
+        "reward": "1000000000000000000000"
+      }
+    },
+    {
+      "address": "0x333fef2bdbfdc2858a27c23594747e7e2669df42",
+      "hash": "0xd5e0ec49d6c9102fefeb5e112f54b7b90c92fa17bfc32f6eb3a2b33c9319f3dc",
+      "block": "51277755",
+      "event": "RentRedeemed",
+      "args": {
+        "tokenId": "8",
+        "recipient": "0x12B967b8b9eddB5185922375F1f7dC1F3791d9Dc",
+        "amount": "188888888888888"
+      }
+    },
+    {
+      "address": "0x333fef2bdbfdc2858a27c23594747e7e2669df42",
+      "hash": "0xd5e0ec49d6c9102fefeb5e112f54b7b90c92fa17bfc32f6eb3a2b33c9319f3dc",
+      "block": "51277755",
+      "event": "Burned",
+      "args": {
+        "tokenId": "8",
+        "reward": "1000000000000000000000"
+      }
+    },
+    {
+      "address": "0xf4bdcd404761dc2b36b443cc0a5b5a71d47da721",
+      "hash": "0x1cbf4750d276aac1dae0495d947183799e1178e7897947e0da638677b2c0c084",
+      "block": "51277783",
+      "event": "Swap",
+      "args": {
+        "sender": "0xcAF22ce31298CF2BF1D152862F80216478ad7c67",
+        "to": "0x12B967b8b9eddB5185922375F1f7dC1F3791d9Dc",
+        "amount0In": "2000000000000000",
+        "amount1In": "0",
+        "amount0Out": "0",
+        "amount1Out": "90661089388014913158134"
+      }
+    },
+    {
+      "address": "0xf4bdcd404761dc2b36b443cc0a5b5a71d47da721",
+      "hash": "0xf7323fe97d6b0862600be024296cb21c28688c8a54053deead71f67b22f713a7",
+      "block": "51277819",
+      "event": "Swap",
+      "args": {
+        "sender": "0xcAF22ce31298CF2BF1D152862F80216478ad7c67",
+        "to": "0xcAF22ce31298CF2BF1D152862F80216478ad7c67",
+        "amount0In": "0",
+        "amount1In": "3661089388014913158134",
+        "amount0Out": "87931434583270",
+        "amount1Out": "0"
+      }
+    },
+    {
+      "address": "0x69a16ad3eaf02b4a39342cfd6609f962636e619d",
+      "hash": "0x04111e99775c9efe486c0b23e4b004446eb20a7fd9b75957a24b5d7359247cf1",
+      "block": "51277867",
+      "event": "PoolFeesCollected",
+      "args": {
+        "ethCollected": "5999999999972",
+        "bcatBurned": "10983268164044739318"
+      }
+    }
+  ],
+  "receipts": [
+    {
+      "hash": "0x579c65a0f36a8564d7947ffbe9d9c8f6850ebf763ee80e9874c63686538aaa51",
+      "from": "0x12b967b8b9eddb5185922375f1f7dc1f3791d9dc",
+      "to": "0x69a16ad3eaf02b4a39342cfd6609f962636e619d",
+      "value": "0",
+      "status": "success"
+    },
+    {
+      "hash": "0x0a42d05475f48d19ffefb2075c2e07c035038c23395c774aa53083efb7f1087c",
+      "from": "0x12b967b8b9eddb5185922375f1f7dc1f3791d9dc",
+      "to": "0x333fef2bdbfdc2858a27c23594747e7e2669df42",
+      "value": "0",
+      "status": "success"
+    },
+    {
+      "hash": "0x8f42d20e5921112fe93533cfd8ce4c6d6e9539a0a5e80545a17581c68b313e83",
+      "from": "0x12b967b8b9eddb5185922375f1f7dc1f3791d9dc",
+      "to": "0x333fef2bdbfdc2858a27c23594747e7e2669df42",
+      "value": "0",
+      "status": "success"
+    },
+    {
+      "hash": "0xd5e0ec49d6c9102fefeb5e112f54b7b90c92fa17bfc32f6eb3a2b33c9319f3dc",
+      "from": "0x12b967b8b9eddb5185922375f1f7dc1f3791d9dc",
+      "to": "0x333fef2bdbfdc2858a27c23594747e7e2669df42",
+      "value": "0",
+      "status": "success"
+    },
+    {
+      "hash": "0x1cbf4750d276aac1dae0495d947183799e1178e7897947e0da638677b2c0c084",
+      "from": "0x12b967b8b9eddb5185922375f1f7dc1f3791d9dc",
+      "to": "0xcaf22ce31298cf2bf1d152862f80216478ad7c67",
+      "value": "2000000000000000",
+      "status": "success"
+    },
+    {
+      "hash": "0xf7323fe97d6b0862600be024296cb21c28688c8a54053deead71f67b22f713a7",
+      "from": "0x12b967b8b9eddb5185922375f1f7dc1f3791d9dc",
+      "to": "0xcaf22ce31298cf2bf1d152862f80216478ad7c67",
+      "value": "0",
+      "status": "success"
+    },
+    {
+      "hash": "0x04111e99775c9efe486c0b23e4b004446eb20a7fd9b75957a24b5d7359247cf1",
+      "from": "0x12b967b8b9eddb5185922375f1f7dc1f3791d9dc",
+      "to": "0x69a16ad3eaf02b4a39342cfd6609f962636e619d",
+      "value": "0",
+      "status": "success"
+    }
+  ],
+  "checks": {
+    "successfulReceipts": true,
+    "bootstrapAmounts": true,
+    "feeCountersMatchEvents": true,
+    "burnRewardsMinted": true,
+    "tokenSupplyReconciled": true,
+    "lpStillInVault": true
+  },
+  "scope": "Read-only receipts, events and state. Does not prove recipient ETH balance deltas net of gas or an independent security audit."
+}
